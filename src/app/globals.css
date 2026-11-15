@@ -55,6 +55,14 @@ html[data-notes-font="sans"] .entry-body { font-family: Arial, Helvetica, sans-s
 .project-shell-canvas { padding-bottom: 30px; }
 .canvas-workspace { max-width: 1600px; margin: 0 auto; }
 .canvas-toolbar { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; padding: 20px 0; }
+.canvas-tools { display: flex; gap: 3px; }
+.canvas-tools button[aria-pressed="true"] { background: #eee6dc; color: #875439; outline: 1px solid #cfc2b2; }
+.canvas-tools button:focus-visible { outline: 2px solid #a2674b; }
+.research-node.node-endpoint { outline: 2px solid #a2674b; outline-offset: 3px; }
+.canvas-mode-connect, .canvas-mode-connect .react-flow__pane, .canvas-mode-connect .react-flow__node { cursor: crosshair; }
+.canvas-mode-disconnect, .canvas-mode-disconnect .react-flow__pane, .canvas-mode-disconnect .react-flow__node { cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24'%3E%3Cpath d='M5 12h14' stroke='%23875439' stroke-width='2'/%3E%3C/svg%3E") 12 12, crosshair; }
+.canvas-mode-connect .react-flow__handle, .canvas-mode-disconnect .react-flow__handle { pointer-events: none; }
+.relationship-picker { display: flex; align-items: center; flex-wrap: wrap; gap: 8px 20px; padding-bottom: 15px; font-size: 12px; }
 .canvas-place select { max-width: 260px; }
 .canvas-connect { display: flex; gap: 12px; flex-wrap: wrap; padding: 0 0 18px; }
 .canvas-connect select { max-width: 240px; }

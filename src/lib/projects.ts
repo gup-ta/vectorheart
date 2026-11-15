@@ -109,29 +109,39 @@ export type Mutation =
   | { kind: "connect"; projectId: string; relationship: ResearchRelationship }
   | { kind: "disconnect"; projectId: string; relationshipId: string };
 
-export function applyMutation(projects: Project[], mutation: Mutation, now = new Date().toISOString()): Project[] {
+function reduceMutation(projects: Project[], mutation: Mutation, now: string): Project[] {
   if (mutation.kind === "create") return projects.some(p => p.id === mutation.project.id) ? projects : [mutation.project, ...projects];
   if (mutation.kind === "remove") return projects.filter(p => p.id !== mutation.projectId);
   return projects.map(project => {
     if (project.id !== mutation.projectId) return project;
     const p = { ...project, updatedAt: now };
     switch (mutation.kind) {
-      case "project": return { ...p, ...mutation.patch, updatedAt: Object.keys(mutation.patch).every(key => key === "lastVisitedView") ? project.updatedAt : now };
+      case "project": return Object.entries(mutation.patch).every(([key, value]) => JSON.stringify(project[key as keyof Project]) === JSON.stringify(value)) ? project : { ...p, ...mutation.patch, updatedAt: Object.keys(mutation.patch).every(key => key === "lastVisitedView") ? project.updatedAt : now };
       case "add-object":
         if (mutation.object.projectId !== p.id || p.objects.some(o => o.id === mutation.object.id)) return project;
         return { ...p, objects: [...p.objects, mutation.object], placements: mutation.position ? [...p.placements, { objectId: mutation.object.id, position: mutation.position }] : p.placements };
-      case "edit-object": return { ...p, objects: p.objects.map(o => o.id === mutation.objectId ? { ...o, ...mutation.patch, updatedAt: now } : o) };
-      case "delete-object": return { ...p, objects: p.objects.filter(o => o.id !== mutation.objectId), placements: p.placements.filter(v => v.objectId !== mutation.objectId), relationships: p.relationships.filter(r => r.sourceId !== mutation.objectId && r.targetId !== mutation.objectId) };
+      case "edit-object": {
+        const object = p.objects.find(o => o.id === mutation.objectId);
+        if (!object || Object.entries(mutation.patch).every(([key, value]) => object[key as keyof ResearchObject] === value)) return project;
+        return { ...p, objects: p.objects.map(o => o.id === mutation.objectId ? { ...o, ...mutation.patch, updatedAt: now } : o) };
+      }
+      case "delete-object": return !p.objects.some(o => o.id === mutation.objectId) ? project : { ...p, objects: p.objects.filter(o => o.id !== mutation.objectId), placements: p.placements.filter(v => v.objectId !== mutation.objectId), relationships: p.relationships.filter(r => r.sourceId !== mutation.objectId && r.targetId !== mutation.objectId) };
       case "place":
         if (!p.objects.some(o => o.id === mutation.placement.objectId)) return project;
+        if (p.placements.some(v => v.objectId === mutation.placement.objectId && v.position.x === mutation.placement.position.x && v.position.y === mutation.placement.position.y)) return project;
         return { ...p, placements: [...p.placements.filter(v => v.objectId !== mutation.placement.objectId), mutation.placement] };
-      case "unplace": return { ...p, placements: p.placements.filter(v => v.objectId !== mutation.objectId) };
+      case "unplace": return !p.placements.some(v => v.objectId === mutation.objectId) ? project : { ...p, placements: p.placements.filter(v => v.objectId !== mutation.objectId) };
       case "connect": {
         const r = mutation.relationship;
-        if (r.projectId !== p.id || r.sourceId === r.targetId || ![r.sourceId, r.targetId].every(id => p.objects.some(o => o.id === id)) || p.relationships.some(edge => edge.id === r.id || (edge.sourceId === r.sourceId && edge.targetId === r.targetId))) return project;
+        if (r.projectId !== p.id || r.sourceId === r.targetId || ![r.sourceId, r.targetId].every(id => p.objects.some(o => o.id === id)) || p.relationships.some(edge => edge.id === r.id || (edge.sourceId === r.sourceId && edge.targetId === r.targetId && (edge.type ?? "") === (r.type ?? "")))) return project;
         return { ...p, relationships: [...p.relationships, r] };
       }
-      case "disconnect": return { ...p, relationships: p.relationships.filter(r => r.id !== mutation.relationshipId) };
+      case "disconnect": return !p.relationships.some(r => r.id === mutation.relationshipId) ? project : { ...p, relationships: p.relationships.filter(r => r.id !== mutation.relationshipId) };
     }
   });
+}
+
+export function applyMutation(projects: Project[], mutation: Mutation, now = new Date().toISOString()): Project[] {
+  const next = reduceMutation(projects, mutation, now);
+  return next.length === projects.length && next.every((project, index) => project === projects[index]) ? projects : next;
 }

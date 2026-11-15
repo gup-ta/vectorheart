@@ -17,19 +17,18 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const current = useRef<Project[]>([]);
   const queue = useRef<Mutation[]>([]);
-  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const blocked = useRef(true);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
   const [pending, setPending] = useState(false);
 
   const flush = useCallback(() => {
-    if (timer.current) clearTimeout(timer.current);
     if (!queue.current.length) return true;
     try {
       // Rebase field-level changes onto the latest snapshot, including other tabs.
-      const next = queue.current.reduce((state, mutation) => applyMutation(state, mutation), localProjectRepository.load());
-      localProjectRepository.save(next);
+      const latest = localProjectRepository.load();
+      const next = queue.current.reduce((state, mutation) => applyMutation(state, mutation), latest);
+      if (next !== latest) localProjectRepository.save(next);
       queue.current = [];
       current.current = next;
       setProjects(next);
@@ -56,6 +55,8 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
       setReady(true);
     }
     load();
+    // A fixed cadence, not a debounce: continued interaction never delays a save.
+    const interval = setInterval(flush, 10_000);
     function sync(event: StorageEvent) { if ([PROJECTS_KEY, LEGACY_PROJECTS_KEY, null].includes(event.key)) load(); }
     function hidden() { if (document.visibilityState === "hidden") flush(); }
     function leaving(event: BeforeUnloadEvent) { if (!flush()) { event.preventDefault(); event.returnValue = ""; } }
@@ -66,18 +67,20 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
     return () => {
       window.removeEventListener("storage", sync); window.removeEventListener("pagehide", flush);
       window.removeEventListener("beforeunload", leaving); document.removeEventListener("visibilitychange", hidden);
-      if (timer.current) clearTimeout(timer.current);
+      clearInterval(interval);
+      flush();
     };
   }, [flush]);
 
   const mutate = useCallback((mutation: Mutation, immediate = false) => {
     if (blocked.current) return false;
+    const next = applyMutation(current.current, mutation);
+    if (next === current.current) return true;
     queue.current.push(mutation);
-    current.current = applyMutation(current.current, mutation);
+    current.current = next;
     setProjects(current.current);
     setPending(true);
-    if (timer.current) clearTimeout(timer.current);
-    if (immediate) flush(); else timer.current = setTimeout(flush, 600);
+    if (immediate) flush();
     // Accepted in memory even if disk saving failed; retain the queued draft.
     return true;
   }, [flush]);

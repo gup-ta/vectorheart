@@ -103,6 +103,31 @@ test("connections can be independently deleted", () => {
   assert.equal(result[0].relationships.length, 0); assert.equal(result[0].objects.length, 2);
 });
 
+test("relationship uniqueness includes type and direction without changing the storage schema", () => {
+  const { state, project, relationship } = fixture();
+  const typed = { ...relationship, id: "supports", type: "supports" };
+  let next = applyMutation(state, { kind: "connect", projectId: project.id, relationship: typed });
+  assert.equal(next[0].relationships.length, 2);
+  assert.equal(applyMutation(next, { kind: "connect", projectId: project.id, relationship: { ...typed, id: "duplicate-typed" } }), next);
+  next = applyMutation(next, { kind: "connect", projectId: project.id, relationship: { ...typed, id: "reverse", sourceId: typed.targetId, targetId: typed.sourceId } });
+  repository.save(next);
+  assert.deepEqual(repository.load(), next);
+  const removed = applyMutation(next, { kind: "disconnect", projectId: project.id, relationshipId: "supports" });
+  assert.deepEqual(removed[0].relationships.map(r => r.id), [relationship.id, "reverse"]);
+  assert.deepEqual(removed[0].objects, state[0].objects);
+});
+
+test("no-op metadata, object, position and relationship mutations preserve snapshot identity", () => {
+  const { state, project, hypothesis } = fixture();
+  for (const mutation of [
+    { kind: "project", projectId: project.id, patch: { title: project.title } },
+    { kind: "edit-object", projectId: project.id, objectId: hypothesis.id, patch: { body: hypothesis.body } },
+    { kind: "place", projectId: project.id, placement: state[0].placements[0] },
+    { kind: "disconnect", projectId: project.id, relationshipId: "absent" },
+    { kind: "unplace", projectId: project.id, objectId: "absent" },
+  ]) assert.equal(applyMutation(state, mutation), state);
+});
+
 test("field-level rebase preserves other-tab edits and does not resurrect deleted objects", () => {
   const { state, project, hypothesis } = fixture();
   const otherTab = applyMutation(state, { kind: "edit-object", projectId: project.id, objectId: hypothesis.id, patch: { title: "Other tab title" } });

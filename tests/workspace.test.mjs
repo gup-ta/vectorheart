@@ -72,6 +72,11 @@ async function click(text) {
   await act(async () => button.click());
 }
 async function flush() { await act(async () => workspace.flush()); }
+async function clickNode(id) {
+  const node = document.querySelector(`.react-flow__node[data-id="${id}"]`);
+  assert.ok(node, "Canvas node exists");
+  await act(async () => node.dispatchEvent(new MouseEvent("click", { bubbles: true })));
+}
 
 test("actual homepage, creation dialog, settings and notebook interactions persist", async () => {
   await render("home", true);
@@ -127,19 +132,40 @@ test("actual homepage, creation dialog, settings and notebook interactions persi
   await render("notebook");
   await click("Delete entry A testable hypothesis");
   assert.equal(workspace.projects[0].objects.length, 0);
+  assert.equal(JSON.parse(localStorage.getItem(PROJECTS_KEY)).projects[0].objects.length, 1);
+  await flush();
   assert.equal(JSON.parse(localStorage.getItem(PROJECTS_KEY)).projects[0].objects.length, 0);
 });
 
-test("autosave debounces writing, flushes on pagehide, and synchronizes another tab", async () => {
+test("autosave batches continuous edits every ten seconds, skips no-ops, and flushes pagehide", async t => {
+  await act(async () => root.unmount()); root = null;
+  t.mock.timers.enable({ apis: ["setInterval"] });
+  t.after(async () => { await act(async () => root.unmount()); root = null; t.mock.timers.reset(); });
   await render("notebook", true);
   await click("Add entry");
   await flush();
   const before = localStorage.getItem(PROJECTS_KEY);
-  await fill(input("Entry title"), "Debounced title");
-  await fill(input("Entry body"), "Debounced content");
+  let writes = 0;
+  const originalSetItem = dom.window.Storage.prototype.setItem;
+  dom.window.Storage.prototype.setItem = function (...args) { writes++; return originalSetItem.apply(this, args); };
+  t.after(() => { dom.window.Storage.prototype.setItem = originalSetItem; });
+  await fill(input("Entry title"), "Buffered title");
+  await act(async () => t.mock.timers.tick(4000));
+  await fill(input("Entry body"), "Buffered content");
+  await act(async () => t.mock.timers.tick(4000));
+  await fill(input("Entry body"), "Latest buffered content");
   assert.equal(localStorage.getItem(PROJECTS_KEY), before, "Keystrokes do not immediately write storage");
-  await act(async () => new Promise(resolve => setTimeout(resolve, 700)));
-  assert.equal(JSON.parse(localStorage.getItem(PROJECTS_KEY)).projects[0].objects[0].body, "Debounced content");
+  assert.equal(writes, 0);
+  const otherTab = JSON.parse(before);
+  otherTab.projects[0].description = "Updated by another workspace view";
+  originalSetItem.call(localStorage, PROJECTS_KEY, JSON.stringify(otherTab));
+  await act(async () => t.mock.timers.tick(2000));
+  assert.equal(writes, 1, "Continuous editing does not postpone the scheduled save");
+  assert.equal(JSON.parse(localStorage.getItem(PROJECTS_KEY)).projects[0].objects[0].body, "Latest buffered content");
+  assert.equal(JSON.parse(localStorage.getItem(PROJECTS_KEY)).projects[0].description, "Updated by another workspace view", "Saving rebases onto the latest stored state");
+  await act(async () => workspace.update(workspace.projects[0].id, { title: workspace.projects[0].title }));
+  await act(async () => t.mock.timers.tick(10000));
+  assert.equal(writes, 1, "Clean intervals and no-op edits do not write");
   await fill(input("Entry body"), "Flush before leaving");
   await act(async () => window.dispatchEvent(new Event("pagehide")));
   assert.equal(JSON.parse(localStorage.getItem(PROJECTS_KEY)).projects[0].objects[0].body, "Flush before leaving");
@@ -166,9 +192,8 @@ test("Canvas controls place, create, edit, connect and delete shared entries", a
   assert.ok(created);
   assert.equal(workspace.projects[0].placements.length, 2);
   await click("Connect");
-  await fill(input("Connection source"), first.id);
-  await fill(input("Connection target"), created.id);
-  await click("Add connection");
+  await clickNode(first.id);
+  await clickNode(created.id);
   assert.equal(workspace.projects[0].relationships.length, 1);
   await flush();
   await render("canvas", true);
@@ -185,6 +210,102 @@ test("Canvas controls place, create, edit, connect and delete shared entries", a
   await click("Delete entry Canvas observation");
   assert.equal(workspace.projects[0].relationships.length, 0);
   assert.ok(!workspace.projects[0].placements.some(p => p.objectId === created.id));
+});
+
+test("two-click tools cancel safely, reject duplicates, disambiguate relationships and buffer writes", async () => {
+  await render("canvas", true);
+  const projectId = workspace.projects[0].id;
+  const a = { ...newObject(projectId), title: "Endpoint A" };
+  const b = { ...newObject(projectId), title: "Endpoint B" };
+  await act(async () => {
+    workspace.mutate({ kind: "add-object", projectId, object: a, position: { x: 0, y: 0 } });
+    workspace.mutate({ kind: "add-object", projectId, object: b, position: { x: 400, y: 0 } });
+  });
+  await flush();
+  const saved = localStorage.getItem(PROJECTS_KEY);
+  const contents = JSON.stringify(workspace.projects[0].objects);
+  const nodeA = () => document.querySelector(`.react-flow__node[data-id="${a.id}"]`);
+  const active = name => document.querySelector(`button[aria-label="${name}"]`).getAttribute("aria-pressed") === "true";
+
+  await click("Connect");
+  assert.ok(!nodeA().classList.contains("draggable"));
+  assert.ok(document.querySelector('button[aria-label="Edit Endpoint A"]').disabled);
+  await clickNode(a.id);
+  assert.ok(nodeA().querySelector(".node-endpoint"));
+  await clickNode(a.id);
+  assert.equal(workspace.projects[0].relationships.length, 0);
+  await clickNode(b.id);
+  assert.equal(workspace.projects[0].relationships.length, 1);
+  await clickNode(b.id);
+  assert.equal(workspace.projects[0].relationships.length, 1, "Same-node disconnect is harmless");
+  assert.ok(active("Select"));
+  assert.equal(localStorage.getItem(PROJECTS_KEY), saved, "Connecting updates memory without writing storage");
+  await click("Connect"); await clickNode(a.id); await clickNode(b.id);
+  assert.equal(workspace.projects[0].relationships.length, 1);
+  assert.match(document.querySelector(".canvas-help").textContent, /already exists/);
+  await act(async () => window.dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "Escape", bubbles: true })));
+  assert.ok(active("Select")); assert.equal(document.querySelector(".node-endpoint"), null);
+
+  await click("Connect"); await clickNode(a.id); await click("Disconnect");
+  assert.equal(document.querySelector(".node-endpoint"), null, "Changing modes clears the first endpoint");
+  await clickNode(b.id);
+  assert.equal(workspace.projects[0].relationships.length, 1);
+  await act(async () => document.querySelector(".react-flow__pane").dispatchEvent(new MouseEvent("click", { bubbles: true })));
+  assert.equal(document.querySelector(".node-endpoint"), null);
+  await clickNode(b.id); await clickNode(a.id);
+  assert.equal(workspace.projects[0].relationships.length, 0);
+  assert.equal(JSON.stringify(workspace.projects[0].objects), contents, "Disconnecting never changes research objects");
+  assert.ok(active("Select"));
+  assert.equal(localStorage.getItem(PROJECTS_KEY), saved);
+  await click("Disconnect"); await clickNode(a.id); await clickNode(b.id);
+  assert.match(document.querySelector(".canvas-help").textContent, /no connection/);
+
+  const forward = { id: "typed-forward", projectId, sourceId: a.id, targetId: b.id, type: "supports" };
+  const reverse = { id: "typed-reverse", projectId, sourceId: b.id, targetId: a.id, type: "questions" };
+  await act(async () => {
+    workspace.mutate({ kind: "connect", projectId, relationship: forward });
+    workspace.mutate({ kind: "connect", projectId, relationship: reverse });
+  });
+  await click("Disconnect"); await clickNode(a.id); await clickNode(b.id);
+  const picker = document.querySelector('[aria-label="Choose connection to remove"]');
+  assert.equal(picker.querySelectorAll("button").length, 2);
+  assert.equal(workspace.projects[0].relationships.length, 2, "Ambiguity removes nothing until selected");
+  await act(async () => [...picker.querySelectorAll("button")].find(button => button.textContent.includes("supports")).click());
+  assert.deepEqual(workspace.projects[0].relationships.map(r => r.id), [reverse.id]);
+  assert.equal(JSON.stringify(workspace.projects[0].objects), contents);
+  assert.ok(active("Select"));
+  assert.ok(nodeA().classList.contains("draggable"), "Normal dragging is restored");
+  await clickNode(a.id);
+  const beforePosition = workspace.projects[0].placements.find(p => p.objectId === a.id).position.x;
+  await act(async () => nodeA().dispatchEvent(new dom.window.KeyboardEvent("keydown", { key: "ArrowRight", bubbles: true })));
+  assert.ok(workspace.projects[0].placements.find(p => p.objectId === a.id).position.x > beforePosition, "React Flow keyboard movement remains functional");
+  await click("Edit Endpoint A"); await fill(input("Entry body"), "Shared buffered edit"); await click("Done");
+  assert.equal(localStorage.getItem(PROJECTS_KEY), saved);
+  await render("notebook");
+  const reloaded = JSON.parse(localStorage.getItem(PROJECTS_KEY)).projects[0];
+  assert.equal(reloaded.objects.find(o => o.id === a.id).body, "Shared buffered edit", "Canvas unmount flushes content");
+  assert.deepEqual(reloaded.relationships.map(r => r.id), [reverse.id]);
+  assert.ok([...document.querySelectorAll("textarea")].some(element => element.value === "Shared buffered edit"));
+});
+
+test("navigation, hidden documents and provider unmount synchronously flush the latest changes", async () => {
+  await render("notebook-route");
+  await fill(input("Central research direction"), "Before navigation");
+  const canvasLink = document.querySelector('nav a[href$="/canvas"]');
+  // Exercise its React click handler; routing itself is verified separately.
+  canvasLink.addEventListener("click", event => event.preventDefault(), { once: true });
+  await act(async () => canvasLink.click());
+  assert.equal(JSON.parse(localStorage.getItem(PROJECTS_KEY)).projects[0].question, "Before navigation");
+  await fill(input("Central research direction"), "Before hidden");
+  Object.defineProperty(document, "visibilityState", { configurable: true, value: "hidden" });
+  await act(async () => document.dispatchEvent(new Event("visibilitychange")));
+  delete document.visibilityState;
+  assert.equal(JSON.parse(localStorage.getItem(PROJECTS_KEY)).projects[0].question, "Before hidden");
+  await render("notebook");
+  await fill(input("Central research direction"), "Before unmount");
+  await act(async () => root.unmount()); root = null;
+  assert.equal(JSON.parse(localStorage.getItem(PROJECTS_KEY)).projects[0].question, "Before unmount");
+  await render("notebook", true);
 });
 
 test("project routing remembers research views and exposes exactly two tabs plus settings", async () => {
