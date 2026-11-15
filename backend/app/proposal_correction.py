@@ -3,7 +3,7 @@ import json
 from dataclasses import replace
 from app.intelligence_schemas import ResearchIntelligenceResponse
 
-SCIENTIFIC_FIELDS=['title','content','rationale','assumptions','predictions','limitations','referenced_object_ids','target_object_id','adapter_id','adapter_parameters','evidence_ids','source_object_id','relationship_type']
+SCIENTIFIC_FIELDS=['title','content','rationale','assumptions','predictions','limitations','referenced_object_ids','target_object_id','adapter_id','adapter_parameters','evidence_ids','source_object_id','relationship_type','literature_source_ids']
 def repairable(item):
     candidate=item.get('_candidate')
     if not isinstance(candidate,dict):return False
@@ -13,7 +13,8 @@ def repairable(item):
 def same_science(original,corrected):
     for key in SCIENTIFIC_FIELDS:
         old,new=original.get(key),corrected.get(key)
-        if key in ['target_object_id','adapter_id','adapter_parameters','source_object_id','relationship_type'] and old in [None,'',{}] and new is None:continue
+        if key=='literature_source_ids' and old is None and new==[]:continue
+        if key in ['target_object_id','adapter_id','adapter_parameters','source_object_id','relationship_type','literature_source_ids'] and old in [None,'',{}] and new is None:continue
         if old!=new:return False
     return True
 def correct_proposals(provider,request,result):

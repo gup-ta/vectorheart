@@ -141,7 +141,7 @@ def correct_graph(pid: str, data: CorrectionInput):
         source, target, typ = data.source_id, data.target_id, data.relationship_type
         if data.kind == 'edit_object':
             obj = k.get(s, Object, data.object_id, pid)
-            if obj.object_type in ['experiment', 'evidence'] or obj.scientific_metadata.get('journal_entry'):
+            if obj.object_type in ['experiment', 'evidence'] or obj.scientific_metadata.get('journal_entry') or obj.scientific_metadata.get('literature_source_id'):
                 raise k.Problem('Correct the interpretation, not the original journal or recorded experiment.', 422)
             if data.base_revision != obj.current_revision:
                 raise k.Problem('This object changed. Review its current revision before correcting it.')
@@ -183,13 +183,15 @@ def corpus(s, pid):
     from app.intelligence_models import ResearchProposal
     reviews=s.scalars(select(ResearchProposal).where(ResearchProposal.project_id==pid,ResearchProposal.status.in_(['accepted','rejected']))).all()
     history=[{'sequence':e.project_sequence_number,'type':e.event_type,'objects':e.affected_object_ids,'timestamp':e.timestamp} for e in s.scalars(select(Event).where(Event.project_id==pid).order_by(Event.project_sequence_number))]
+    from app.literature import project_literature_context
+    external=project_literature_context(s,pid)
     records = [{'id': o.id, 'revision': o.current_revision, 'type': o.object_type, 'title': o.title, 'body': o.body, 'metadata': o.scientific_metadata, 'origin': o.provenance_type} for o in objects]
     recorded_evidence={e.id:e for e in k.rows(s,Evidence,pid)}
     for record in records:
         evidence=recorded_evidence.get(record['id'])
         if evidence:
             record['metadata']={**record['metadata'],'recorded_evidence':{'source_run_id':evidence.source_run_id,'source_type':evidence.source_type,'verification_status':evidence.verification_status,'measured_results':evidence.measured_results,'provenance':evidence.provenance}}
-    return {'project': {'id': pid, 'title': p.title, 'description': p.description, 'question': p.question}, 'records': records, 'revisions': refs, 'corrections': corrections(s, pid), 'corrections_hash': digest(corrections(s, pid)), 'relationships': [k.dump(r) for r in k.rows(s, Relationship, pid)], 'history':history,'proposal_reviews':[{'id':r.id,'action_type':r.action_type,'status':r.status,'title':r.payload.get('title'),'rationale':r.provenance.get('review_rationale')} for r in reviews]}
+    return {'project': {'id': pid, 'title': p.title, 'description': p.description, 'question': p.question}, 'records': records, 'revisions': refs, 'corrections': corrections(s, pid), 'corrections_hash': digest(corrections(s, pid)), 'relationships': [k.dump(r) for r in k.rows(s, Relationship, pid)], 'history':history,'literature':external,'proposal_reviews':[{'id':r.id,'action_type':r.action_type,'status':r.status,'title':r.payload.get('title'),'rationale':r.provenance.get('review_rationale')} for r in reviews]}
 
 
 def chunk_corpus(snapshot):
@@ -373,7 +375,7 @@ def graph_batch(pid, rid, owner):
         consume_model(s, run); st = step(s, run, 'extract', {'batch': done}); sid = st.id
         batch = chunks[done]; p = k.get(s, Project, pid)
         name, model, provider = route(p.settings, 'Conceptual Synthesis')
-        context = {'project': snap['project'], 'passages': batch, 'corrections': snap['corrections'], 'existing_objects': [{'id': o['id'], 'type': o['type'], 'title': o['title']} for o in snap['records'] if not o['metadata'].get('journal_entry')]+[{'id':n['id'],'type':n['object_type'],'title':n['title'],'body':n['body'],'staged_interpretation':True} for n in run.output.get('nodes',[])], 'relationships': snap['relationships'],'history':snap['history'],'prior_proposal_reviews':snap['proposal_reviews']}
+        context = {'project': snap['project'], 'passages': batch, 'corrections': snap['corrections'], 'existing_objects': [{'id': o['id'], 'type': o['type'], 'title': o['title']} for o in snap['records'] if not o['metadata'].get('journal_entry')]+[{'id':n['id'],'type':n['object_type'],'title':n['title'],'body':n['body'],'staged_interpretation':True} for n in run.output.get('nodes',[])], 'relationships': snap['relationships'],'history':snap['history'],'prior_proposal_reviews':snap['proposal_reviews'],'literature':snap.get('literature',[])}
     started = time.monotonic()
     response = provider.generate_structured_response(ModelRequest(model, GRAPH_INSTRUCTIONS, 'Reconstruct this passage batch. Return only source-grounded interpretations.', context, [], 8000, 40, schema=GraphExtraction, correction_attempt=True))
     with k.transaction() as s:
@@ -460,7 +462,22 @@ def investigation_context(s, pid, run, cid):
     decisions=s.scalars(select(ResearchProposal).where(ResearchProposal.project_id==pid,ResearchProposal.status.in_(['accepted','rejected'])).order_by(ResearchProposal.created_at.desc()).limit(300)).all()
     context['prior_proposal_reviews']=[{'id':p.id,'action_type':p.action_type,'title':p.payload.get('title'),'content':p.payload.get('content'),'status':p.status,'rationale':p.provenance.get('review_rationale'),'result_ids':p.result_ids} for p in decisions]
     context['investigation_trace'] = [kernel().dump(st) for st in s.scalars(select(ResearchStep).where(ResearchStep.run_id == run.id).order_by(ResearchStep.number))]
-    context['registered_tools']=kernel().adapters()
+    # Every verified source exposed by a tool must also be in the explicit citation
+    # allowlist. Do not leak a larger tool result behind a smaller context budget.
+    from app.literature import scoped_snapshot,source_view
+    visible_sources={v['source_id']:v for v in context.get('literature',[])}
+    for recorded in context['investigation_trace']:
+        if recorded['kind']!='literature_tool' or recorded['status']!='completed':continue
+        compact=[]
+        for returned in recorded['result'].get('sources',[]):
+            snapshot=scoped_snapshot(s,pid,returned['source_id'],returned['snapshot_id'])
+            value=source_view(s,snapshot);value['abstract']=value['abstract'][:3500];value['content_excerpted']=len(snapshot.record['abstract'])>3500
+            visible_sources[value['source_id']]=value
+            compact.append({key:value[key] for key in ['source_id','snapshot_id','title','access_level']})
+        recorded['result']={**recorded['result'],'sources':compact}
+    context['literature']=list(visible_sources.values())
+    from app.literature import tool_registry
+    context['registered_tools']=kernel().adapters()+tool_registry()
     context['remaining_steps'] = run.config['max_steps'] - run.steps_used
     # No arbitrary truncation: require a complete graph map before larger runs.
     if len(json.dumps(context, ensure_ascii=False)) > 100000:
@@ -493,6 +510,12 @@ def investigation_turn(pid, rid, owner):
             key=f'stage3-{sid}';run.steps_used+=1
         instructions = '''You are performing a bounded investigation, not following a fixed script.
 Choose the most informative next action from actual registered adapters and previous real results.
+You may request one registered read-only literature tool in tool_request. Use it when published
+knowledge could resolve uncertainty; inspect the actual returned abstract/access level on the next
+step. Retrieved sources are candidates, never independently verified scientific results. Do not
+create paper IDs, fabricated citations or local measured Evidence for literature. Propose only
+canonical object changes with supplied object IDs; accepted paper/claim objects can inform those.
+A bounded search does not establish global novelty; say not identified in retrieved literature.
 Never execute anything. Propose at most ONE executable experiment per turn, only on a causal_demo
 hypothesis; unsupported domains remain conceptual. If no useful executable experiment remains,
 finish with your best novel, testable proposals (including questions, relationships or evidence-based
@@ -519,6 +542,12 @@ is a concise scientific run summary, not a conversation. Source records are not 
         output = run.output
         run.output = {**output, 'summary': response['content'], 'limitations': response['response_details'].get('limitations', []), 'proposal_ids': list(dict.fromkeys(output.get('proposal_ids', []) + [p['id'] for p in response['proposals']]))}
         executable = next((p for p in response['proposals'] if p['action_type'] == 'propose_experiment' and p['payload']['executable']), None)
+        tool=response['response_details'].get('tool_request')
+        if tool and run.kind=='investigate' and run.tool_executions<run.config['max_tools'] and run.steps_used<run.config['max_steps']:
+            from app.literature import validate_tool
+            validate_tool(s,pid,tool)
+            task=step(s,run,'literature_tool',{'tool_request':tool});task.status='queued'
+            run.status='running';return True
         if executable and run.kind == 'investigate' and run.tool_executions < run.config['max_tools'] and run.steps_used < run.config['max_steps']:
             payload = executable['payload']
             op = k.propose(s, pid, k.Proposal(action_type='destroy.test_hypothesis', target_object_ids=[payload['target_object_id']], proposal_payload={'adapter_id': payload['adapter_id'], 'parameters': payload['adapter_parameters'], 'rationale': payload['rationale']}))
@@ -618,13 +647,20 @@ def drive(pid, rid):
                 if run.status == 'cancelled' or run.lease_owner != owner: return
                 run.lease_until = (datetime.now(timezone.utc) + timedelta(seconds=120)).isoformat()
                 kind = run.kind
+            if kind == 'literature':
+                from app.literature import advance
+                advance(pid,rid,owner);return
             if kind == 'graph':
                 if not graph_batch(pid, rid, owner): return
             else:
+                from app.literature import execute_pending_tool
+                if not execute_pending_tool(pid,rid,owner):return
                 if not execute_pending(pid, rid, owner): return
-                investigation_turn(pid, rid, owner); return
+                if investigation_turn(pid,rid,owner):continue
+                return
     except Exception as exc:
-        error = exc.message if isinstance(exc, (k.Problem, ProviderError)) else safe_error(exc).message
+        from app.scholarly_providers import ScholarlyError
+        error = exc.message if isinstance(exc, (k.Problem, ProviderError, ScholarlyError)) else safe_error(exc).message
         with k.transaction() as s:
             run = k.get(s, ResearchRun, rid, pid)
             if run.status != 'cancelled': run.status = 'failed'; run.error = error
@@ -674,7 +710,7 @@ def review_run_proposal(pid: str, rid: str, proposal_id: str, decision: str, dat
         p = k.get(s, ResearchProposal, proposal_id, pid)
         if data.rationale: p.provenance = {**p.provenance, 'review_rationale': data.rationale}
         edge_id=p.result_ids.get('relationship_id')
-        if decision=='accept' and edge_id:
+        if decision=='accept' and edge_id and p.action_type!='propose_literature_relationship':
             edge=k.get(s,Relationship,edge_id,pid)
             edge.details={**edge.details,'origin':'ai_accelerate','research_run_id':rid}
             for endpoint in [edge.source_object_id,edge.target_object_id]:
@@ -682,7 +718,7 @@ def review_run_proposal(pid: str, rid: str, proposal_id: str, decision: str, dat
                     positions=k.rows(s,Placement,pid)
                     s.add(Placement(object_id=endpoint,project_id=pid,x=max([v.x for v in positions],default=-340)+340,y=80));s.flush()
         oid = p.result_ids.get('object_id')
-        if decision == 'accept' and oid:
+        if decision == 'accept' and oid and p.action_type!='propose_literature_relationship':
             obj = k.get(s, Object, oid, pid)
             metadata = {**obj.scientific_metadata, 'origin': 'ai_accelerate', 'research_run_id': rid}
             k.revise(s, obj, obj.title, obj.body, metadata, 'Accepted AI Accelerate provenance')

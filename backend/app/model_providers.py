@@ -26,7 +26,7 @@ class ModelRequest:
     correction_attempt:bool=False
     def payload(self):
         payload=json.dumps({'user_request':self.message,'project_context_untrusted':self.context,'conversation_history_untrusted':self.history},ensure_ascii=False)
-        for variable in ['OPENAI_API_KEY','ANTHROPIC_API_KEY','GEMINI_API_KEY']:
+        for variable in ['OPENAI_API_KEY','ANTHROPIC_API_KEY','GEMINI_API_KEY','OPENALEX_API_KEY']:
             secret=os.getenv(variable)
             if secret:payload=payload.replace(json.dumps(secret,ensure_ascii=False)[1:-1],'[credential redacted]')
         return payload
@@ -66,7 +66,7 @@ logger=logging.getLogger('vectorheart.providers')
 def sanitized_provider_detail(exc):
     # Prefer the provider's short message, never its HTTP request, headers or body.
     message=str(getattr(exc,'message',None) or str(exc))
-    for key in ['OPENAI_API_KEY','ANTHROPIC_API_KEY','GEMINI_API_KEY']:
+    for key in ['OPENAI_API_KEY','ANTHROPIC_API_KEY','GEMINI_API_KEY','OPENALEX_API_KEY']:
         secret=os.getenv(key)
         if secret:message=message.replace(secret,'[redacted]')
     message=re.sub(r'(?i)(?:api[_-]?key|authorization|bearer)([\s:=]+)[^\s,\'"}]+',r'credential\1[redacted]',message)

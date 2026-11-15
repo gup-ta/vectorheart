@@ -16,7 +16,7 @@ class ResearchContextBuilder:
         neighbors={r.target_object_id if r.source_object_id==selected_id else r.source_object_id for r in relationships if selected_id in [r.source_object_id,r.target_object_id]}
         words=set(question.lower().split())
         ordered=sorted(objects,key=lambda o:(0 if o.id==selected_id else 1 if o.id in neighbors else 2 if o.object_type in ['evidence','experiment','hypothesis','question','observation'] else 3,-sum(w in (o.title+' '+o.body).lower() for w in words if len(w)>3)))
-        context={'project':{'id':pid,'title':project.title[:120],'description':project.description[:1500],'question':project.question[:1500],'research_field':str(project.settings.get('researchField',''))[:200]},'selected_object_id':selected_id,'objects':[],'relationships':[],'evidence':[],'events':[],'adapters':[{'id':ADAPTER,'parameter_schema':Parameters.model_json_schema(),'scope':'Only the registered synthetic A/B models; target must have causal_demo metadata. Unknown adapters are conceptual, not executable.','limitations':LIMITATIONS}],'omitted_objects':0,'truncated':False}
+        context={'project':{'id':pid,'title':project.title[:120],'description':project.description[:1500],'question':project.question[:1500],'research_field':str(project.settings.get('researchField',''))[:200]},'selected_object_id':selected_id,'objects':[],'relationships':[],'evidence':[],'literature':[],'events':[],'adapters':[{'id':ADAPTER,'parameter_schema':Parameters.model_json_schema(),'scope':'Only the registered synthetic A/B models; target must have causal_demo metadata. Unknown adapters are conceptual, not executable.','limitations':LIMITATIONS}],'omitted_objects':0,'truncated':False}
         limit=context_limit()
         def size():return len(json.dumps(context,ensure_ascii=False))
         if size()>limit-1800:
@@ -46,12 +46,14 @@ class ResearchContextBuilder:
         from app.stage3 import corrections
         decisions=corrections(s,pid)
         if decisions:append('events',{'researcher_corrections':decisions,'instruction':'These are durable human interpretation constraints, not verified evidence.'})
+        from app.literature import project_literature_context
+        for source in project_literature_context(s,pid,selected_ids=([selected_id] if selected_id else [])+list(neighbors)):append('literature',source)
         messages=s.scalars(select(ResearchMessage).where(ResearchMessage.conversation_id==conversation_id,ResearchMessage.status=='completed').order_by(ResearchMessage.created_at.desc(),ResearchMessage.id).limit(8)).all()
         history=[{'role':m.role,'content':m.content[:1500]} for m in reversed(messages)]
         # Credentials are never configuration context. Redact known keys if pasted into source text.
         def scrub(value):
             raw=json.dumps(value,ensure_ascii=False)
-            for key in ['OPENAI_API_KEY','ANTHROPIC_API_KEY','GEMINI_API_KEY']:
+            for key in ['OPENAI_API_KEY','ANTHROPIC_API_KEY','GEMINI_API_KEY','OPENALEX_API_KEY']:
                 secret=os.getenv(key)
                 if secret:raw=raw.replace(json.dumps(secret)[1:-1],'[credential redacted]')
             return json.loads(raw)

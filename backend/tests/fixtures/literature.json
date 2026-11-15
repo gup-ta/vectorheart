@@ -1,0 +1,2982 @@
+{
+  "openalex": {
+    "id": "https://openalex.org/W2740836480",
+    "title": "Pilot study of a novel classroom designed to prevent myopia by increasing children’s exposure to outdoor light",
+    "doi": "https://doi.org/10.1371/journal.pone.0181772",
+    "ids": {
+      "openalex": "https://openalex.org/W2740836480",
+      "doi": "https://doi.org/10.1371/journal.pone.0181772",
+      "mag": "2740836480",
+      "pmid": "https://pubmed.ncbi.nlm.nih.gov/28759614",
+      "pmcid": "https://www.ncbi.nlm.nih.gov/pmc/articles/5536284"
+    },
+    "publication_year": 2017,
+    "publication_date": "2017-07-31",
+    "authorships": [
+      {
+        "author_position": "first",
+        "author": {
+          "id": "https://openalex.org/A5005207371",
+          "display_name": "Zhongqiang Zhou",
+          "orcid": "https://orcid.org/0000-0003-3738-9251",
+          "observed_orcids": [
+            "https://orcid.org/0000-0003-3738-9251"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I157773358",
+            "display_name": "Sun Yat-sen University",
+            "ror": "https://ror.org/0064kty71",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I157773358"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4210133534",
+            "display_name": "Henan Provincial People's Hospital",
+            "ror": "https://ror.org/03f72zw41",
+            "country_code": "CN",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I4210133534"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4210155322",
+            "display_name": "Henan Provincial Eye Hospital",
+            "ror": "https://ror.org/051jybk56",
+            "country_code": "CN",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I4210155322"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4391768270",
+            "display_name": "State Key Laboratory of Ophthalmology",
+            "ror": "https://ror.org/003mfbe21",
+            "country_code": "CN",
+            "type": "facility",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4401726874",
+            "display_name": "Zhongshan Ophthalmic Center, Sun Yat-sen University",
+            "ror": "https://ror.org/02z2yec16",
+            "country_code": "CN",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ],
+        "countries": [
+          "CN"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Zhongqiang Zhou",
+        "raw_affiliation_strings": [
+          "Henan Eye Institute, Henan Eye Hospital, Henan Provincial People's Hospital, People's Hospital of Zhengzhou University, Zhengzhou, China",
+          "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "Henan Eye Institute, Henan Eye Hospital, Henan Provincial People's Hospital, People's Hospital of Zhengzhou University, Zhengzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I4210133534",
+              "https://openalex.org/I4210155322"
+            ]
+          },
+          {
+            "raw_affiliation_string": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5100344100",
+          "display_name": "Tingting Chen",
+          "orcid": "https://orcid.org/0000-0002-0089-9402",
+          "observed_orcids": [
+            "https://orcid.org/0000-0002-0089-9402"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I157773358",
+            "display_name": "Sun Yat-sen University",
+            "ror": "https://ror.org/0064kty71",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I157773358"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4210128921",
+            "display_name": "The First Affiliated Hospital, Sun Yat-sen University",
+            "ror": "https://ror.org/037p24858",
+            "country_code": "CN",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I4210128921"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4391768270",
+            "display_name": "State Key Laboratory of Ophthalmology",
+            "ror": "https://ror.org/003mfbe21",
+            "country_code": "CN",
+            "type": "facility",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4401726874",
+            "display_name": "Zhongshan Ophthalmic Center, Sun Yat-sen University",
+            "ror": "https://ror.org/02z2yec16",
+            "country_code": "CN",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ],
+        "countries": [
+          "CN"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Tingting Chen",
+        "raw_affiliation_strings": [
+          "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China",
+          "The Department of Ophthalmology, The First Affiliated Hospital of Sun Yat-Sen University, Guangzhou, China"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270",
+              "https://openalex.org/I4401726874"
+            ]
+          },
+          {
+            "raw_affiliation_string": "The Department of Ophthalmology, The First Affiliated Hospital of Sun Yat-Sen University, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I4210128921"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5014102458",
+          "display_name": "Mengrui Wang",
+          "orcid": null,
+          "observed_orcids": []
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I90610280",
+            "display_name": "South China University of Technology",
+            "ror": "https://ror.org/0530pts50",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I90610280"
+            ]
+          }
+        ],
+        "countries": [
+          "CN"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Mengrui Wang",
+        "raw_affiliation_strings": [
+          "School of Architecture, South China University of Technology, Guangzhou, China"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "School of Architecture, South China University of Technology, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I90610280"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5041718092",
+          "display_name": "Ling Jin",
+          "orcid": "https://orcid.org/0000-0002-8629-2408",
+          "observed_orcids": [
+            "https://orcid.org/0000-0002-8629-2408"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I157773358",
+            "display_name": "Sun Yat-sen University",
+            "ror": "https://ror.org/0064kty71",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I157773358"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4391768270",
+            "display_name": "State Key Laboratory of Ophthalmology",
+            "ror": "https://ror.org/003mfbe21",
+            "country_code": "CN",
+            "type": "facility",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4401726874",
+            "display_name": "Zhongshan Ophthalmic Center, Sun Yat-sen University",
+            "ror": "https://ror.org/02z2yec16",
+            "country_code": "CN",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ],
+        "countries": [
+          "CN"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Ling Jin",
+        "raw_affiliation_strings": [
+          "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": null,
+          "display_name": "Yongyi Zhao",
+          "orcid": null,
+          "observed_orcids": []
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I90610280",
+            "display_name": "South China University of Technology",
+            "ror": "https://ror.org/0530pts50",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I90610280"
+            ]
+          }
+        ],
+        "countries": [
+          "CN"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Yongyi Zhao",
+        "raw_affiliation_strings": [
+          "School of Architecture, South China University of Technology, Guangzhou, China"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "School of Architecture, South China University of Technology, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I90610280"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5062904391",
+          "display_name": "Shangji Chen",
+          "orcid": null,
+          "observed_orcids": []
+        },
+        "institutions": [],
+        "countries": [],
+        "is_corresponding": false,
+        "raw_author_name": "Shangji Chen",
+        "raw_affiliation_strings": [
+          "Guangming Eye Hospital, Yangjiang, People's Republic of China"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "Guangming Eye Hospital, Yangjiang, People's Republic of China",
+            "institution_ids": []
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5115592371",
+          "display_name": "Congyao Wang",
+          "orcid": null,
+          "observed_orcids": []
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I157773358",
+            "display_name": "Sun Yat-sen University",
+            "ror": "https://ror.org/0064kty71",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I157773358"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4391768270",
+            "display_name": "State Key Laboratory of Ophthalmology",
+            "ror": "https://ror.org/003mfbe21",
+            "country_code": "CN",
+            "type": "facility",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4401726874",
+            "display_name": "Zhongshan Ophthalmic Center, Sun Yat-sen University",
+            "ror": "https://ror.org/02z2yec16",
+            "country_code": "CN",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ],
+        "countries": [
+          "CN"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Congyao Wang",
+        "raw_affiliation_strings": [
+          "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5021811730",
+          "display_name": "Guoshan Zhang",
+          "orcid": "https://orcid.org/0000-0003-0994-5468",
+          "observed_orcids": [
+            "https://orcid.org/0000-0003-0994-5468"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I157773358",
+            "display_name": "Sun Yat-sen University",
+            "ror": "https://ror.org/0064kty71",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I157773358"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4391768270",
+            "display_name": "State Key Laboratory of Ophthalmology",
+            "ror": "https://ror.org/003mfbe21",
+            "country_code": "CN",
+            "type": "facility",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4401726874",
+            "display_name": "Zhongshan Ophthalmic Center, Sun Yat-sen University",
+            "ror": "https://ror.org/02z2yec16",
+            "country_code": "CN",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ],
+        "countries": [
+          "CN"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Guoshan Zhang",
+        "raw_affiliation_strings": [
+          "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5100710383",
+          "display_name": "Qilin Wang",
+          "orcid": "https://orcid.org/0000-0001-6967-6197",
+          "observed_orcids": [
+            "https://orcid.org/0000-0001-6967-6197"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I157773358",
+            "display_name": "Sun Yat-sen University",
+            "ror": "https://ror.org/0064kty71",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I157773358"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4391768270",
+            "display_name": "State Key Laboratory of Ophthalmology",
+            "ror": "https://ror.org/003mfbe21",
+            "country_code": "CN",
+            "type": "facility",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4401726874",
+            "display_name": "Zhongshan Ophthalmic Center, Sun Yat-sen University",
+            "ror": "https://ror.org/02z2yec16",
+            "country_code": "CN",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ],
+        "countries": [
+          "CN"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Qilin Wang",
+        "raw_affiliation_strings": [
+          "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5090557868",
+          "display_name": "Qiaoming Deng",
+          "orcid": "https://orcid.org/0000-0002-2351-216X",
+          "observed_orcids": [
+            "https://orcid.org/0000-0002-2351-216X"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I90610280",
+            "display_name": "South China University of Technology",
+            "ror": "https://ror.org/0530pts50",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I90610280"
+            ]
+          }
+        ],
+        "countries": [
+          "CN"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Qiaoming Deng",
+        "raw_affiliation_strings": [
+          "School of Architecture, South China University of Technology, Guangzhou, China"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "School of Architecture, South China University of Technology, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I90610280"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5100747039",
+          "display_name": "Yubo Liu",
+          "orcid": "https://orcid.org/0000-0001-5898-0927",
+          "observed_orcids": [
+            "https://orcid.org/0000-0001-5898-0927"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I157773358",
+            "display_name": "Sun Yat-sen University",
+            "ror": "https://ror.org/0064kty71",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I157773358"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4391768270",
+            "display_name": "State Key Laboratory of Ophthalmology",
+            "ror": "https://ror.org/003mfbe21",
+            "country_code": "CN",
+            "type": "facility",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4401726874",
+            "display_name": "Zhongshan Ophthalmic Center, Sun Yat-sen University",
+            "ror": "https://ror.org/02z2yec16",
+            "country_code": "CN",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4401726874"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I90610280",
+            "display_name": "South China University of Technology",
+            "ror": "https://ror.org/0530pts50",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I90610280"
+            ]
+          }
+        ],
+        "countries": [
+          "CN"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Yubo Liu",
+        "raw_affiliation_strings": [
+          "School of Architecture, South China University of Technology, Guangzhou, China",
+          "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "School of Architecture, South China University of Technology, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I90610280"
+            ]
+          },
+          {
+            "raw_affiliation_string": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5019279868",
+          "display_name": "Ian George Morgan",
+          "orcid": "https://orcid.org/0000-0002-4548-3574",
+          "observed_orcids": [
+            "https://orcid.org/0000-0002-4548-3574"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I118347636",
+            "display_name": "Australian National University",
+            "ror": "https://ror.org/019wvm592",
+            "country_code": "AU",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I118347636"
+            ]
+          }
+        ],
+        "countries": [
+          "AU"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Ian G. Morgan",
+        "raw_affiliation_strings": [
+          "Research School of Biology, Australian National University, Canberra, Australia"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "Research School of Biology, Australian National University, Canberra, Australia",
+            "institution_ids": [
+              "https://openalex.org/I118347636"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5015914756",
+          "display_name": "Mingguang He",
+          "orcid": "https://orcid.org/0000-0002-6912-2810",
+          "observed_orcids": [
+            "https://orcid.org/0000-0002-6912-2810",
+            "https://orcid.org/0000-0002-2086-8312",
+            "https://orcid.org/0000-0001-7877-168X",
+            "https://orcid.org/0000-0002-9433-0734",
+            "https://orcid.org/0000-0002-6664-3442"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I157773358",
+            "display_name": "Sun Yat-sen University",
+            "ror": "https://ror.org/0064kty71",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I157773358"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I165779595",
+            "display_name": "The University of Melbourne",
+            "ror": "https://ror.org/01ej9dk98",
+            "country_code": "AU",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I165779595"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4210089625",
+            "display_name": "The Royal Victorian Eye & Ear Hospital",
+            "ror": "https://ror.org/008q4kt04",
+            "country_code": "AU",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I4210089625"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4210105949",
+            "display_name": "Centre for Eye Research Australia",
+            "ror": "https://ror.org/01sqdef20",
+            "country_code": "AU",
+            "type": "facility",
+            "lineage": [
+              "https://openalex.org/I4210105949"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4391768270",
+            "display_name": "State Key Laboratory of Ophthalmology",
+            "ror": "https://ror.org/003mfbe21",
+            "country_code": "CN",
+            "type": "facility",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4401726874",
+            "display_name": "Zhongshan Ophthalmic Center, Sun Yat-sen University",
+            "ror": "https://ror.org/02z2yec16",
+            "country_code": "CN",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ],
+        "countries": [
+          "AU",
+          "CN"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Mingguang He",
+        "raw_affiliation_strings": [
+          "Centre for Eye Research Australia, University of Melbourne, Royal Victorian Eye and Ear Hospital, Melbourne, Australia",
+          "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "Centre for Eye Research Australia, University of Melbourne, Royal Victorian Eye and Ear Hospital, Melbourne, Australia",
+            "institution_ids": [
+              "https://openalex.org/I165779595",
+              "https://openalex.org/I4210089625",
+              "https://openalex.org/I4210105949"
+            ]
+          },
+          {
+            "raw_affiliation_string": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5100701317",
+          "display_name": "Yizhi Liu",
+          "orcid": "https://orcid.org/0000-0002-2067-2707",
+          "observed_orcids": [
+            "https://orcid.org/0000-0002-2067-2707"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I157773358",
+            "display_name": "Sun Yat-sen University",
+            "ror": "https://ror.org/0064kty71",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I157773358"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4391768270",
+            "display_name": "State Key Laboratory of Ophthalmology",
+            "ror": "https://ror.org/003mfbe21",
+            "country_code": "CN",
+            "type": "facility",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4401726874",
+            "display_name": "Zhongshan Ophthalmic Center, Sun Yat-sen University",
+            "ror": "https://ror.org/02z2yec16",
+            "country_code": "CN",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4401726874"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I90610280",
+            "display_name": "South China University of Technology",
+            "ror": "https://ror.org/0530pts50",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I90610280"
+            ]
+          }
+        ],
+        "countries": [
+          "CN"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Yizhi Liu",
+        "raw_affiliation_strings": [
+          "School of Architecture, South China University of Technology, Guangzhou, China",
+          "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "School of Architecture, South China University of Technology, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I90610280"
+            ]
+          },
+          {
+            "raw_affiliation_string": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "last",
+        "author": {
+          "id": "https://openalex.org/A5065787198",
+          "display_name": "Nathan G. Congdon",
+          "orcid": "https://orcid.org/0000-0001-9866-3416",
+          "observed_orcids": [
+            "https://orcid.org/0000-0001-9866-3416"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I126231945",
+            "display_name": "Queen's University Belfast",
+            "ror": "https://ror.org/00hswnk62",
+            "country_code": "GB",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I126231945"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I157773358",
+            "display_name": "Sun Yat-sen University",
+            "ror": "https://ror.org/0064kty71",
+            "country_code": "CN",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I157773358"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4210130048",
+            "display_name": "Royal Victoria Hospital",
+            "ror": "https://ror.org/03rq50d77",
+            "country_code": "GB",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I1289110261",
+              "https://openalex.org/I4210130048"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4391768270",
+            "display_name": "State Key Laboratory of Ophthalmology",
+            "ror": "https://ror.org/003mfbe21",
+            "country_code": "CN",
+            "type": "facility",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270"
+            ]
+          },
+          {
+            "id": "https://openalex.org/I4401726874",
+            "display_name": "Zhongshan Ophthalmic Center, Sun Yat-sen University",
+            "ror": "https://ror.org/02z2yec16",
+            "country_code": "CN",
+            "type": "healthcare",
+            "lineage": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4401726874"
+            ]
+          }
+        ],
+        "countries": [
+          "CN",
+          "GB"
+        ],
+        "is_corresponding": true,
+        "raw_author_name": "Nathan Congdon",
+        "raw_affiliation_strings": [
+          "ORBIS International, New York, NY, United States of America",
+          "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China",
+          "Translational Research for Equitable Eye care, Centre for Public Health, Royal Victoria Hospital, Queen's University Belfast, Belfast, United Kingdom"
+        ],
+        "raw_orcid": "https://orcid.org/0000-0001-9866-3416",
+        "affiliations": [
+          {
+            "raw_affiliation_string": "ORBIS International, New York, NY, United States of America",
+            "institution_ids": []
+          },
+          {
+            "raw_affiliation_string": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China",
+            "institution_ids": [
+              "https://openalex.org/I157773358",
+              "https://openalex.org/I4391768270",
+              "https://openalex.org/I4401726874"
+            ]
+          },
+          {
+            "raw_affiliation_string": "Translational Research for Equitable Eye care, Centre for Public Health, Royal Victoria Hospital, Queen's University Belfast, Belfast, United Kingdom",
+            "institution_ids": [
+              "https://openalex.org/I126231945",
+              "https://openalex.org/I4210130048"
+            ]
+          }
+        ]
+      }
+    ],
+    "primary_location": {
+      "id": "doi:10.1371/journal.pone.0181772",
+      "doi": "https://doi.org/10.1371/journal.pone.0181772",
+      "is_oa": true,
+      "landing_page_url": "https://doi.org/10.1371/journal.pone.0181772",
+      "pdf_url": "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0181772&type=printable",
+      "source": {
+        "id": "https://openalex.org/S202381698",
+        "display_name": "PLoS ONE",
+        "issn_l": "1932-6203",
+        "issn": [
+          "1932-6203"
+        ],
+        "is_oa": true,
+        "is_in_doaj": true,
+        "is_core": true,
+        "listed_in": [
+          "anvur-class-a",
+          "anvur-scientific",
+          "cwts-core",
+          "doaj",
+          "dongbi-c",
+          "doyens",
+          "erih-plus",
+          "jufo-1",
+          "ki-jl-1",
+          "medline",
+          "norway-1",
+          "poland-100",
+          "russia-white-list-1",
+          "vabb-shw"
+        ],
+        "host_organization": "https://openalex.org/P4310315706",
+        "host_organization_name": "Public Library of Science",
+        "host_organization_lineage": [
+          "https://openalex.org/P4310315706"
+        ],
+        "host_organization_lineage_names": [
+          "Public Library of Science"
+        ],
+        "type": "journal"
+      },
+      "license": "cc-by",
+      "license_id": "https://openalex.org/licenses/cc-by",
+      "version": "publishedVersion",
+      "is_accepted": true,
+      "is_published": true,
+      "raw_source_name": "PLOS ONE",
+      "raw_type": "journal-article"
+    },
+    "best_oa_location": {
+      "id": "doi:10.1371/journal.pone.0181772",
+      "doi": "https://doi.org/10.1371/journal.pone.0181772",
+      "is_oa": true,
+      "landing_page_url": "https://doi.org/10.1371/journal.pone.0181772",
+      "pdf_url": "https://journals.plos.org/plosone/article/file?id=10.1371/journal.pone.0181772&type=printable",
+      "source": {
+        "id": "https://openalex.org/S202381698",
+        "display_name": "PLoS ONE",
+        "issn_l": "1932-6203",
+        "issn": [
+          "1932-6203"
+        ],
+        "is_oa": true,
+        "is_in_doaj": true,
+        "is_core": true,
+        "listed_in": [
+          "anvur-class-a",
+          "anvur-scientific",
+          "cwts-core",
+          "doaj",
+          "dongbi-c",
+          "doyens",
+          "erih-plus",
+          "jufo-1",
+          "ki-jl-1",
+          "medline",
+          "norway-1",
+          "poland-100",
+          "russia-white-list-1",
+          "vabb-shw"
+        ],
+        "host_organization": "https://openalex.org/P4310315706",
+        "host_organization_name": "Public Library of Science",
+        "host_organization_lineage": [
+          "https://openalex.org/P4310315706"
+        ],
+        "host_organization_lineage_names": [
+          "Public Library of Science"
+        ],
+        "type": "journal"
+      },
+      "license": "cc-by",
+      "license_id": "https://openalex.org/licenses/cc-by",
+      "version": "publishedVersion",
+      "is_accepted": true,
+      "is_published": true,
+      "raw_source_name": "PLOS ONE",
+      "raw_type": "journal-article"
+    },
+    "abstract_inverted_index": {
+      "We": [
+        0
+      ],
+      "sought": [
+        1
+      ],
+      "to": [
+        2,
+        16,
+        23,
+        142
+      ],
+      "assess": [
+        3
+      ],
+      "light": [
+        4,
+        24,
+        59,
+        86,
+        148,
+        173
+      ],
+      "characteristics": [
+        5
+      ],
+      "and": [
+        6,
+        44,
+        47,
+        52,
+        72,
+        127,
+        136,
+        147,
+        155,
+        180,
+        191
+      ],
+      "user": [
+        7,
+        50
+      ],
+      "acceptability": [
+        8
+      ],
+      "of": [
+        9,
+        63,
+        166
+      ],
+      "a": [
+        10,
+        40
+      ],
+      "prototype": [
+        11
+      ],
+      "Bright": [
+        12
+      ],
+      "Classroom": [
+        13
+      ],
+      "(BC),": [
+        14
+      ],
+      "designed": [
+        15
+      ],
+      "prevent": [
+        17
+      ],
+      "children's": [
+        18,
+        167
+      ],
+      "myopia": [
+        19
+      ],
+      "by": [
+        20
+      ],
+      "exposing": [
+        21
+      ],
+      "them": [
+        22
+      ],
+      "conditions": [
+        25
+      ],
+      "resembling": [
+        26
+      ],
+      "the": [
+        27,
+        33,
+        37,
+        89,
+        97,
+        125,
+        133,
+        143,
+        151,
+        163,
+        176,
+        183,
+        194
+      ],
+      "outdoors.": [
+        28,
+        45
+      ],
+      "Conditions": [
+        29
+      ],
+      "were": [
+        30
+      ],
+      "measured": [
+        31
+      ],
+      "throughout": [
+        32
+      ],
+      "school": [
+        34
+      ],
+      "year": [
+        35
+      ],
+      "in": [
+        36,
+        88,
+        124,
+        132,
+        150,
+        153,
+        175
+      ],
+      "glass-constructed": [
+        38
+      ],
+      "BC,": [
+        39
+      ],
+      "traditional": [
+        41
+      ],
+      "classroom": [
+        42
+      ],
+      "(TC)": [
+        43
+      ],
+      "Teachers": [
+        46,
+        135
+      ],
+      "children": [
+        48,
+        53,
+        65,
+        137
+      ],
+      "completed": [
+        49,
+        79
+      ],
+      "questionnaires,": [
+        51
+      ],
+      "rated": [
+        54
+      ],
+      "reading": [
+        55
+      ],
+      "comfort": [
+        56,
+        168
+      ],
+      "at": [
+        57,
+        119,
+        162,
+        182
+      ],
+      "different": [
+        58
+      ],
+      "intensities.": [
+        60
+      ],
+      "A": [
+        61,
+        115
+      ],
+      "total": [
+        62
+      ],
+      "230": [
+        64
+      ],
+      "(mean": [
+        66
+      ],
+      "age": [
+        67
+      ],
+      "10.2": [
+        68
+      ],
+      "years,": [
+        69,
+        76
+      ],
+      "57.4%": [
+        70
+      ],
+      "boys)": [
+        71
+      ],
+      "13": [
+        73
+      ],
+      "teachers": [
+        74,
+        192
+      ],
+      "(36.8": [
+        75
+      ],
+      "15.4%": [
+        77
+      ],
+      "men)": [
+        78
+      ],
+      "questionnaires.": [
+        80
+      ],
+      "The": [
+        81
+      ],
+      "median": [
+        82
+      ],
+      "(Inter": [
+        83
+      ],
+      "Quartile": [
+        84
+      ],
+      "Range)": [
+        85
+      ],
+      "intensity": [
+        87,
+        149,
+        174
+      ],
+      "BC": [
+        90,
+        126,
+        144,
+        152,
+        177
+      ],
+      "(2,540": [
+        91
+      ],
+      "[1,330-4,060]": [
+        92
+      ],
+      "lux)": [
+        93,
+        160
+      ],
+      "was": [
+        94,
+        122,
+        161
+      ],
+      "greater": [
+        95
+      ],
+      "than": [
+        96,
+        107,
+        145
+      ],
+      "TC": [
+        98
+      ],
+      "(477": [
+        99
+      ],
+      "[245-738]": [
+        100
+      ],
+      "lux,": [
+        101,
+        111
+      ],
+      "P": [
+        102,
+        112
+      ],
+      "<": [
+        103,
+        113
+      ],
+      "0.001),": [
+        104
+      ],
+      "though": [
+        105
+      ],
+      "less": [
+        106,
+        130
+      ],
+      "outdoors": [
+        108
+      ],
+      "(19,500": [
+        109
+      ],
+      "[8,960-36,000]": [
+        110
+      ],
+      "0.001).": [
+        114
+      ],
+      "prominent": [
+        116
+      ],
+      "spectral": [
+        117
+      ],
+      "peak": [
+        118
+      ],
+      "490-560": [
+        120
+      ],
+      "nm": [
+        121
+      ],
+      "present": [
+        123
+      ],
+      "outdoors,": [
+        128
+      ],
+      "but": [
+        129
+      ],
+      "so": [
+        131
+      ],
+      "TC.": [
+        134
+      ],
+      "gave": [
+        138
+      ],
+      "higher": [
+        139
+      ],
+      "overall": [
+        140
+      ],
+      "ratings": [
+        141
+      ],
+      "TC,": [
+        146,
+        179
+      ],
+      "summer": [
+        154
+      ],
+      "on": [
+        156
+      ],
+      "sunny": [
+        157
+      ],
+      "days": [
+        158
+      ],
+      "(>5,000": [
+        159
+      ],
+      "upper": [
+        164,
+        185
+      ],
+      "limit": [
+        165,
+        186
+      ],
+      "for": [
+        169,
+        187
+      ],
+      "reading.": [
+        170
+      ],
+      "In": [
+        171
+      ],
+      "summary,": [
+        172
+      ],
+      "exceeds": [
+        178
+      ],
+      "is": [
+        181
+      ],
+      "practical": [
+        184
+      ],
+      "routine": [
+        188
+      ],
+      "use.": [
+        189
+      ],
+      "Children": [
+        190
+      ],
+      "prefer": [
+        193
+      ],
+      "BC.": [
+        195
+      ]
+    },
+    "type": "article",
+    "is_retracted": false,
+    "referenced_works": [
+      "https://openalex.org/W7183366",
+      "https://openalex.org/W1886115468",
+      "https://openalex.org/W1893249899",
+      "https://openalex.org/W1974781405",
+      "https://openalex.org/W1980168972",
+      "https://openalex.org/W1982998435",
+      "https://openalex.org/W1989259302",
+      "https://openalex.org/W1990873100",
+      "https://openalex.org/W1996121046",
+      "https://openalex.org/W1998662694",
+      "https://openalex.org/W2001256485",
+      "https://openalex.org/W2004108081",
+      "https://openalex.org/W2005933617",
+      "https://openalex.org/W2010754557",
+      "https://openalex.org/W2016681734",
+      "https://openalex.org/W2018021074",
+      "https://openalex.org/W2024812998",
+      "https://openalex.org/W2026215259",
+      "https://openalex.org/W2037514275",
+      "https://openalex.org/W2038510676",
+      "https://openalex.org/W2044502666",
+      "https://openalex.org/W2045918089",
+      "https://openalex.org/W2048228565",
+      "https://openalex.org/W2051961090",
+      "https://openalex.org/W2057383623",
+      "https://openalex.org/W2059922896",
+      "https://openalex.org/W2065440265",
+      "https://openalex.org/W2067095492",
+      "https://openalex.org/W2068394933",
+      "https://openalex.org/W2068821934",
+      "https://openalex.org/W2077157584",
+      "https://openalex.org/W2084969988",
+      "https://openalex.org/W2115703211",
+      "https://openalex.org/W2123215356",
+      "https://openalex.org/W2134442053",
+      "https://openalex.org/W2135939475",
+      "https://openalex.org/W2137264803",
+      "https://openalex.org/W2148039314",
+      "https://openalex.org/W2149705075",
+      "https://openalex.org/W2157785309",
+      "https://openalex.org/W2164363851",
+      "https://openalex.org/W2169374365",
+      "https://openalex.org/W2170456046",
+      "https://openalex.org/W2254292250",
+      "https://openalex.org/W2261730390",
+      "https://openalex.org/W2297359744",
+      "https://openalex.org/W2410134628",
+      "https://openalex.org/W2993942671",
+      "https://openalex.org/W4255271122"
+    ]
+  },
+  "pmc": {
+    "id": "28759614",
+    "source": "MED",
+    "pmid": "28759614",
+    "pmcid": "PMC5536284",
+    "doi": "10.1371/journal.pone.0181772",
+    "title": "Pilot study of a novel classroom designed to prevent myopia by increasing children's exposure to outdoor light.",
+    "pubYear": "2017",
+    "firstPublicationDate": "2017-07-31",
+    "journalInfo": {
+      "issue": "7",
+      "volume": "12",
+      "journalIssueId": 2572928,
+      "dateOfPublication": "2017 ",
+      "monthOfPublication": 0,
+      "yearOfPublication": 2017,
+      "journal": {
+        "medlineAbbreviation": "PLoS One",
+        "title": "PloS one",
+        "essn": "1932-6203",
+        "issn": "1932-6203",
+        "nlmid": "101285081",
+        "isoabbreviation": "PLoS One"
+      },
+      "printPublicationDate": "2017-01-01"
+    },
+    "authorList": {
+      "author": [
+        {
+          "fullName": "Zhou Z",
+          "lastName": "Zhou",
+          "firstName": "Zhongqiang",
+          "initials": "Z",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Henan Eye Institute, Henan Eye Hospital, Henan Provincial People's Hospital, People's Hospital of Zhengzhou University, Zhengzhou, China."
+              },
+              {
+                "affiliation": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Chen T",
+          "lastName": "Chen",
+          "firstName": "Tingting",
+          "initials": "T",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China."
+              },
+              {
+                "affiliation": "The Department of Ophthalmology, The First Affiliated Hospital of Sun Yat-Sen University, Guangzhou, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Wang M",
+          "lastName": "Wang",
+          "firstName": "Mengrui",
+          "initials": "M",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "School of Architecture, South China University of Technology, Guangzhou, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Jin L",
+          "lastName": "Jin",
+          "firstName": "Ling",
+          "initials": "L",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Zhao Y",
+          "lastName": "Zhao",
+          "firstName": "Yongyi",
+          "initials": "Y",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "School of Architecture, South China University of Technology, Guangzhou, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Chen S",
+          "lastName": "Chen",
+          "firstName": "Shangji",
+          "initials": "S",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Guangming Eye Hospital, Yangjiang, People's Republic of China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Wang C",
+          "lastName": "Wang",
+          "firstName": "Congyao",
+          "initials": "C",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Zhang G",
+          "lastName": "Zhang",
+          "firstName": "Guoshan",
+          "initials": "G",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Wang Q",
+          "lastName": "Wang",
+          "firstName": "Qilin",
+          "initials": "Q",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Deng Q",
+          "lastName": "Deng",
+          "firstName": "Qiaoming",
+          "initials": "Q",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "School of Architecture, South China University of Technology, Guangzhou, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Liu Y",
+          "lastName": "Liu",
+          "firstName": "Yubo",
+          "initials": "Y",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "School of Architecture, South China University of Technology, Guangzhou, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Morgan IG",
+          "lastName": "Morgan",
+          "firstName": "Ian G",
+          "initials": "IG",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "Research School of Biology, Australian National University, Canberra, Australia."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "He M",
+          "lastName": "He",
+          "firstName": "Mingguang",
+          "initials": "M",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China."
+              },
+              {
+                "affiliation": "Centre for Eye Research Australia, University of Melbourne, Royal Victorian Eye and Ear Hospital, Melbourne, Australia."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Liu Y",
+          "lastName": "Liu",
+          "firstName": "Yizhi",
+          "initials": "Y",
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China."
+              }
+            ]
+          }
+        },
+        {
+          "fullName": "Congdon N",
+          "lastName": "Congdon",
+          "firstName": "Nathan",
+          "initials": "N",
+          "authorId": {
+            "type": "ORCID",
+            "value": "0000-0001-9866-3416"
+          },
+          "authorAffiliationDetailsList": {
+            "authorAffiliation": [
+              {
+                "affiliation": "State Key Laboratory of Ophthalmology, Zhongshan Ophthalmic Center, Sun Yat-Sen University, Guangzhou, China."
+              },
+              {
+                "affiliation": "ORBIS International, New York, NY, United States of America."
+              },
+              {
+                "affiliation": "Translational Research for Equitable Eye care, Centre for Public Health, Royal Victoria Hospital, Queen's University Belfast, Belfast, United Kingdom."
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "abstractText": "We sought to assess light characteristics and user acceptability of a prototype Bright Classroom (BC), designed to prevent children's myopia by exposing them to light conditions resembling the outdoors. Conditions were measured throughout the school year in the glass-constructed BC, a traditional classroom (TC) and outdoors. Teachers and children completed user questionnaires, and children rated reading comfort at different light intensities. A total of 230 children (mean age 10.2 years, 57.4% boys) and 13 teachers (36.8 years, 15.4% men) completed questionnaires. The median (Inter Quartile Range) light intensity in the BC (2,540 [1,330-4,060] lux) was greater than the TC (477 [245-738] lux, P < 0.001), though less than outdoors (19,500 [8,960-36,000] lux, P < 0.001). A prominent spectral peak at 490-560 nm was present in the BC and outdoors, but less so in the TC. Teachers and children gave higher overall ratings to the BC than TC, and light intensity in the BC in summer and on sunny days (>5,000 lux) was at the upper limit of children's comfort for reading. In summary, light intensity in the BC exceeds TC, and is at the practical upper limit for routine use. Children and teachers prefer the BC.",
+    "pubTypeList": {
+      "pubType": [
+        "research-article",
+        "Journal Article"
+      ]
+    },
+    "fullTextUrlList": {
+      "fullTextUrl": [
+        {
+          "availability": "Subscription required",
+          "availabilityCode": "S",
+          "documentStyle": "doi",
+          "site": "DOI",
+          "url": "https://doi.org/10.1371/journal.pone.0181772"
+        },
+        {
+          "availability": "Open access",
+          "availabilityCode": "OA",
+          "documentStyle": "html",
+          "site": "Europe_PMC",
+          "url": "https://europepmc.org/articles/PMC5536284"
+        },
+        {
+          "availability": "Open access",
+          "availabilityCode": "OA",
+          "documentStyle": "pdf",
+          "site": "Europe_PMC",
+          "url": "https://europepmc.org/articles/PMC5536284?pdf=render"
+        }
+      ]
+    }
+  },
+  "crossref": {
+    "DOI": "10.1371/journal.pone.0181772",
+    "title": [
+      "Pilot study of a novel classroom designed to prevent myopia by increasing children’s exposure to outdoor light"
+    ],
+    "author": [
+      {
+        "given": "Zhongqiang",
+        "family": "Zhou",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Tingting",
+        "family": "Chen",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Mengrui",
+        "family": "Wang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Ling",
+        "family": "Jin",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Yongyi",
+        "family": "Zhao",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Shangji",
+        "family": "Chen",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Congyao",
+        "family": "Wang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Guoshan",
+        "family": "Zhang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Qilin",
+        "family": "Wang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Qiaoming",
+        "family": "Deng",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Yubo",
+        "family": "Liu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Ian G.",
+        "family": "Morgan",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Mingguang",
+        "family": "He",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Yizhi",
+        "family": "Liu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-9866-3416",
+        "authenticated-orcid": true,
+        "given": "Nathan",
+        "family": "Congdon",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "published": {
+      "date-parts": [
+        [
+          2017,
+          7,
+          31
+        ]
+      ]
+    },
+    "issued": {
+      "date-parts": [
+        [
+          2017,
+          7,
+          31
+        ]
+      ]
+    },
+    "container-title": [
+      "PLOS ONE"
+    ],
+    "type": "journal-article",
+    "reference": [
+      {
+        "issue": "5",
+        "key": "ref1",
+        "doi-asserted-by": "crossref",
+        "first-page": "614",
+        "DOI": "10.1136/bjophthalmol-2011-300539",
+        "article-title": "Global estimates of visual impairment:2010",
+        "volume": "96",
+        "author": "D Pascolini",
+        "year": "2012",
+        "journal-title": "Br J Ophthalmol"
+      },
+      {
+        "issue": "1",
+        "key": "ref2",
+        "doi-asserted-by": "crossref",
+        "first-page": "63",
+        "DOI": "10.2471/BLT.07.041210",
+        "article-title": "Global magnitude of visual impairment caused by uncorrected refractive errors in 2004",
+        "volume": "86",
+        "author": "S Resnikoff",
+        "year": "2008",
+        "journal-title": "Bull World Health Organ"
+      },
+      {
+        "issue": "8",
+        "key": "ref3",
+        "doi-asserted-by": "crossref",
+        "first-page": "877",
+        "DOI": "10.1111/j.1755-3768.2009.01800.x",
+        "article-title": "Is emmetropia the natural endpoint for human refractive development? An analysis of population-based data from the refractive error study in children (RESC)",
+        "volume": "88",
+        "author": "IG Morgan",
+        "year": "2010",
+        "journal-title": "Acta Ophthalmol"
+      },
+      {
+        "issue": "7",
+        "key": "ref4",
+        "doi-asserted-by": "crossref",
+        "first-page": "2888",
+        "DOI": "10.1167/iovs.07-1160",
+        "article-title": "Visual disability, visual function and myopia among rural Chinese secondary school children: the Xichang Pediatric Refractive Error Study (X-PRES) Report #1",
+        "volume": "49",
+        "author": "N Congdon",
+        "year": "2008",
+        "journal-title": "Invest Ophthalmol Vis Sci"
+      },
+      {
+        "issue": "2",
+        "key": "ref5",
+        "doi-asserted-by": "crossref",
+        "first-page": "374",
+        "DOI": "10.1016/j.ophtha.2006.08.020",
+        "article-title": "Refractive error and visual impairment in school children in rural southern China",
+        "volume": "114",
+        "author": "M He",
+        "year": "2007",
+        "journal-title": "Ophthalmology"
+      },
+      {
+        "issue": "6",
+        "key": "ref6",
+        "first-page": "491",
+        "article-title": "Population-based survey of refractive error in school-aged children in Liwan District, Guangzhou",
+        "volume": "44",
+        "author": "MG He",
+        "year": "2008",
+        "journal-title": "Zhonghua Yan Ke Za Zhi"
+      },
+      {
+        "issue": "6",
+        "key": "ref7",
+        "doi-asserted-by": "crossref",
+        "first-page": "348",
+        "DOI": "10.3109/09286586.2013.842596",
+        "article-title": "Design, methodology and baseline data of a school-based cohort study in Central China: theAnyang Childhood Eye Study",
+        "volume": "20",
+        "author": "SM Li",
+        "year": "2013",
+        "journal-title": "Ophthalmic Epidemiol"
+      },
+      {
+        "issue": "12",
+        "key": "ref8",
+        "doi-asserted-by": "crossref",
+        "first-page": "e82763",
+        "DOI": "10.1371/journal.pone.0082763",
+        "article-title": "Refractive error, visual acuity and causes of vision loss in children in Shandong, China. The Shandong Children Eye Study",
+        "volume": "8",
+        "author": "JF Wu",
+        "year": "2013",
+        "journal-title": "PloS One"
+      },
+      {
+        "issue": "5",
+        "key": "ref9",
+        "doi-asserted-by": "crossref",
+        "first-page": "e398",
+        "DOI": "10.1111/aos.12299",
+        "article-title": "Prevalence of myopia in school children in greater Beijing: the Beijing Childhood Eye Study",
+        "volume": "92",
+        "author": "QS You",
+        "year": "2014",
+        "journal-title": "Acta Ophthalmol"
+      },
+      {
+        "issue": "12",
+        "key": "ref10",
+        "doi-asserted-by": "crossref",
+        "first-page": "1399",
+        "DOI": "10.1001/jamaophthalmol.2015.3513",
+        "article-title": "Population prevalence of need for spectacles and spectacle ownership among urban migrant children in eastern China",
+        "volume": "133",
+        "author": "X Wang",
+        "year": "2015",
+        "journal-title": "JAMA Ophthalmol"
+      },
+      {
+        "key": "ref11",
+        "doi-asserted-by": "crossref",
+        "first-page": "g5740",
+        "DOI": "10.1136/bmj.g5740",
+        "article-title": "Effect of providing free glasses on children&apos;s educational outcomes in China: Cluster-randomized controlled trial",
+        "volume": "349",
+        "author": "X Ma",
+        "year": "2014",
+        "journal-title": "BMJ"
+      },
+      {
+        "issue": "11",
+        "key": "ref12",
+        "doi-asserted-by": "crossref",
+        "first-page": "4949",
+        "DOI": "10.1167/iovs.07-0052",
+        "article-title": "Correction of moderate myopia is associated with improvement in self-reported visual functioning among Mexican school-aged children",
+        "volume": "48",
+        "author": "P Esteso",
+        "year": "2007",
+        "journal-title": "Invest Ophthalmol Vis Sci"
+      },
+      {
+        "issue": "9827",
+        "key": "ref13",
+        "doi-asserted-by": "crossref",
+        "first-page": "1739",
+        "DOI": "10.1016/S0140-6736(12)60272-4",
+        "article-title": "Myopia",
+        "volume": "379",
+        "author": "IG Morgan",
+        "year": "2012",
+        "journal-title": "Lancet"
+      },
+      {
+        "issue": "5",
+        "key": "ref14",
+        "doi-asserted-by": "crossref",
+        "first-page": "381",
+        "DOI": "10.1111/j.1475-1313.2005.00298.x",
+        "article-title": "Myopia and associated pathological complications",
+        "volume": "25",
+        "author": "SM Saw",
+        "year": "2005",
+        "journal-title": "Ophthalmic Physiol Opt"
+      },
+      {
+        "issue": "5",
+        "key": "ref15",
+        "doi-asserted-by": "crossref",
+        "first-page": "897",
+        "DOI": "10.1016/j.ajo.2015.08.013",
+        "article-title": "Safety of spectacles for children&apos;s vision: a cluster-randomized controlled trial",
+        "volume": "160",
+        "author": "X Ma",
+        "year": "2015",
+        "journal-title": "Am J Ophthalmol"
+      },
+      {
+        "issue": "9",
+        "key": "ref16",
+        "doi-asserted-by": "crossref",
+        "first-page": "631",
+        "DOI": "10.1097/OPX.0b013e3181ea19c7",
+        "article-title": "Spectacle lenses designed to reduce progression of myopia: 12-month results",
+        "volume": "87",
+        "author": "P Sankaridurg",
+        "year": "2010",
+        "journal-title": "Optom Vis Sci"
+      },
+      {
+        "issue": "13",
+        "key": "ref17",
+        "doi-asserted-by": "crossref",
+        "first-page": "9362",
+        "DOI": "10.1167/iovs.11-7260",
+        "article-title": "Decrease in rate of myopia progression with a contact lens designed to reduce relative peripheral hyperopia: one-year results",
+        "volume": "52",
+        "author": "P Sankaridurg",
+        "year": "2011",
+        "journal-title": "Invest Ophthalmol Vis Sci"
+      },
+      {
+        "issue": "1",
+        "key": "ref18",
+        "doi-asserted-by": "crossref",
+        "first-page": "40",
+        "DOI": "10.1136/bjophthalmol-2013-303914",
+        "article-title": "Defocus incorporated soft contact (DISC) lens slows myopia progression in Hong Kong Chinese schoolchildren: a 2-year randomised clinical trial",
+        "volume": "98",
+        "author": "CS Lam",
+        "year": "2014",
+        "journal-title": "Br J Ophthalmol"
+      },
+      {
+        "issue": "2",
+        "key": "ref19",
+        "doi-asserted-by": "crossref",
+        "first-page": "347",
+        "DOI": "10.1016/j.ophtha.2011.07.031",
+        "article-title": "Atropine for the treatment of childhood myopia: safety and efficacy of 0.5%, 0.1%, and 0.01% doses (Atropine for the Treatment of Myopia 2)",
+        "volume": "119",
+        "author": "A Chia",
+        "year": "2012",
+        "journal-title": "Ophthalmology"
+      },
+      {
+        "issue": "5",
+        "key": "ref20",
+        "first-page": "600",
+        "article-title": "Efficacy, safety and acceptability of orthokeratology on slowing axial elongation in myopic children by meta-analysis",
+        "volume": "41",
+        "author": "SM Li",
+        "year": "2015",
+        "journal-title": "Curr Eye Res"
+      },
+      {
+        "issue": "1",
+        "key": "ref21",
+        "doi-asserted-by": "crossref",
+        "first-page": "61",
+        "DOI": "10.1097/ICL.0000000000000130",
+        "article-title": "Microbial bioburden of orthokeratology contact lens care system",
+        "volume": "42",
+        "author": "J Lo",
+        "year": "2016",
+        "journal-title": "Eye Contact Lens"
+      },
+      {
+        "issue": "6",
+        "key": "ref22",
+        "doi-asserted-by": "crossref",
+        "first-page": "1130",
+        "DOI": "10.1016/j.ajo.2014.08.026",
+        "article-title": "Orthokeratology-associated infectious keratitis in a tertiary care eye hospital in Hong Kong",
+        "volume": "158",
+        "author": "TC Chan",
+        "year": "2014",
+        "journal-title": "Am J Ophthalmol"
+      },
+      {
+        "issue": "8",
+        "key": "ref23",
+        "doi-asserted-by": "crossref",
+        "first-page": "1279",
+        "DOI": "10.1016/j.ophtha.2007.12.019",
+        "article-title": "Outdoor activity reduces the prevalence of myopia in children",
+        "volume": "115",
+        "author": "KA Rose",
+        "year": "2008",
+        "journal-title": "Ophthalmology"
+      },
+      {
+        "issue": "11",
+        "key": "ref24",
+        "doi-asserted-by": "crossref",
+        "first-page": "1142",
+        "DOI": "10.1001/jama.2015.10803",
+        "article-title": "Effect of time spent outdoors at school on the development of myopia among children in China: a randomized clinical trial",
+        "volume": "314",
+        "author": "M He",
+        "year": "2015",
+        "journal-title": "JAMA"
+      },
+      {
+        "issue": "5",
+        "key": "ref25",
+        "doi-asserted-by": "crossref",
+        "first-page": "1080",
+        "DOI": "10.1016/j.ophtha.2012.11.009",
+        "article-title": "Outdoor activity during class recess reduces myopia onset and progression in school children",
+        "volume": "120",
+        "author": "PC Wu",
+        "year": "2013",
+        "journal-title": "Ophthalmology"
+      },
+      {
+        "issue": "1",
+        "key": "ref26",
+        "first-page": "32",
+        "article-title": "Influence of near-work and outdoor activities on myopia progression in school children",
+        "volume": "13",
+        "author": "JH Yi",
+        "year": "2011",
+        "journal-title": "Zhongguo Dang Dai Er Ke Za Zhi"
+      },
+      {
+        "issue": "6",
+        "key": "ref27",
+        "doi-asserted-by": "crossref",
+        "first-page": "622",
+        "DOI": "10.1016/j.preteyeres.2012.06.004",
+        "article-title": "The complex interactions of retinal, optical and environmental factors in myopia aetiology",
+        "volume": "31",
+        "author": "DI Flitcroft",
+        "year": "2012",
+        "journal-title": "Prog Retin Eye Res"
+      },
+      {
+        "issue": "11",
+        "key": "ref28",
+        "doi-asserted-by": "crossref",
+        "first-page": "5348",
+        "DOI": "10.1167/iovs.09-3419",
+        "article-title": "The effect of ambient illuminance on the development of deprivation myopia in chicks",
+        "volume": "50",
+        "author": "R Ashby",
+        "year": "2009",
+        "journal-title": "Invest Ophthalmol Vis Sci"
+      },
+      {
+        "issue": "1",
+        "key": "ref29",
+        "doi-asserted-by": "crossref",
+        "first-page": "299",
+        "DOI": "10.1167/iovs.14-15499",
+        "article-title": "Correlation between light levels and the development of deprivation myopia",
+        "volume": "56",
+        "author": "C Karouta",
+        "year": "2014",
+        "journal-title": "Invest Ophthalmol Vis Sci"
+      },
+      {
+        "issue": "5",
+        "key": "ref30",
+        "doi-asserted-by": "crossref",
+        "first-page": "563",
+        "DOI": "10.1111/opo.12069",
+        "article-title": "Influence of periodic vs continuous daily bright light exposure on development of experimental myopia in the chick",
+        "volume": "33",
+        "author": "S Backhouse",
+        "year": "2013",
+        "journal-title": "Ophthalmic Physiol Opt"
+      },
+      {
+        "issue": "3",
+        "key": "ref31",
+        "doi-asserted-by": "crossref",
+        "first-page": "1901",
+        "DOI": "10.1167/iovs.13-12276",
+        "article-title": "The effects of monochromatic illumination on early eye development in rhesus monkeys",
+        "volume": "55",
+        "author": "R Liu",
+        "year": "2014",
+        "journal-title": "Invest Ophthalmol Vis Sci"
+      },
+      {
+        "issue": "6",
+        "key": "ref32",
+        "doi-asserted-by": "crossref",
+        "first-page": "447",
+        "DOI": "10.1016/j.exer.2011.03.003",
+        "article-title": "Effects of different monochromatic lights on refractive development and eye growth in guinea pigs",
+        "volume": "92",
+        "author": "R Liu",
+        "year": "2011",
+        "journal-title": "Exp Eye Res"
+      },
+      {
+        "issue": "3",
+        "key": "ref33",
+        "doi-asserted-by": "crossref",
+        "first-page": "252",
+        "DOI": "10.1111/opo.12207",
+        "article-title": "Elevated light levels in schools have a protective effect on Myopia",
+        "volume": "35",
+        "author": "WJ Hua",
+        "year": "2015",
+        "journal-title": "Ophthalmic Physiol Opt"
+      },
+      {
+        "issue": "11",
+        "key": "ref34",
+        "doi-asserted-by": "crossref",
+        "first-page": "6779",
+        "DOI": "10.1167/iovs.14-15978",
+        "article-title": "Light Exposure and Eye Growth in Childhood",
+        "volume": "56",
+        "author": "SA Read",
+        "year": "2015",
+        "journal-title": "Invest Ophthalmol Vis Sci"
+      },
+      {
+        "key": "ref35",
+        "unstructured": "Guangdong Statistical Yearbook 2015[Internet]. [cited 2016 June 25] Available from: <ext-link xmlns:xlink=\"http://www.w3.org/1999/xlink\" ext-link-type=\"uri\" xlink:href=\"http://www.gdstats.gov.cn/tjnj/2015/directory.html\" xlink:type=\"simple\">http://www.gdstats.gov.cn/tjnj/2015/directory.html</ext-link>. Chinese."
+      },
+      {
+        "key": "ref36",
+        "unstructured": "Yangxi Statistical Yearbook 2015. [cited 2016 June 25] Available from: <ext-link xmlns:xlink=\"http://www.w3.org/1999/xlink\" ext-link-type=\"uri\" xlink:href=\"http://www.yjtjj.gov.cn/index.aspx?lanmuid=64&sublanmuid=605\" xlink:type=\"simple\">http://www.yjtjj.gov.cn/index.aspx?lanmuid=64&amp;sublanmuid=605</ext-link>. Chinese."
+      },
+      {
+        "issue": "8",
+        "key": "ref37",
+        "doi-asserted-by": "crossref",
+        "first-page": "4734",
+        "DOI": "10.1167/iovs.14-15474",
+        "article-title": "Time Outdoors and Myopia Progression Over 2 Years in Chinese Children: The Anyang Childhood Eye Study",
+        "volume": "56",
+        "author": "SM Li",
+        "year": "2015",
+        "journal-title": "Invest Ophthalmol Vis Sci."
+      },
+      {
+        "issue": "7",
+        "key": "ref38",
+        "doi-asserted-by": "crossref",
+        "first-page": "911",
+        "DOI": "10.1038/eye.2012.49",
+        "article-title": "Comparison of measurements of time outdoors and light levels as risk factors for myopia in young Singapore children",
+        "volume": "26",
+        "author": "R Dharani",
+        "year": "2012",
+        "journal-title": "Eye (Lond)"
+      },
+      {
+        "issue": "10",
+        "key": "ref39",
+        "doi-asserted-by": "crossref",
+        "first-page": "5247",
+        "DOI": "10.1167/iovs.09-4689",
+        "article-title": "The effect of bright light on lens compensation in chicks",
+        "volume": "51",
+        "author": "RS Ashby",
+        "year": "2010",
+        "journal-title": "Invest Ophthalmol Vis Sci"
+      },
+      {
+        "issue": "1",
+        "key": "ref40",
+        "doi-asserted-by": "crossref",
+        "first-page": "299",
+        "DOI": "10.1167/iovs.14-15499",
+        "article-title": "Correlation between light levels and the development of deprivation myopia",
+        "volume": "56",
+        "author": "C Karouta",
+        "year": "2015",
+        "journal-title": "Invest Ophthalmol Vis Sci"
+      },
+      {
+        "issue": "1",
+        "key": "ref41",
+        "doi-asserted-by": "crossref",
+        "first-page": "421",
+        "DOI": "10.1167/iovs.11-8652",
+        "article-title": "Protective effects of high ambient lighting on the development of form-deprivation myopia in rhesus monkeys",
+        "volume": "53",
+        "author": "EL,3rd Smith",
+        "year": "2012",
+        "journal-title": "Invest Ophthalmol Vis Sci"
+      },
+      {
+        "key": "ref42",
+        "doi-asserted-by": "crossref",
+        "first-page": "58",
+        "DOI": "10.1016/j.exer.2013.04.018",
+        "article-title": "Time outdoors and the prevention of myopia",
+        "volume": "114",
+        "author": "AN French",
+        "year": "2013",
+        "journal-title": "Exp Eye Res"
+      },
+      {
+        "issue": "10",
+        "key": "ref43",
+        "doi-asserted-by": "crossref",
+        "first-page": "2100",
+        "DOI": "10.1016/j.ophtha.2013.02.035",
+        "article-title": "Risk factors for incident myopia in Australian schoolchildren: the Sydney adolescent vascular and eye study",
+        "volume": "120",
+        "author": "AN French",
+        "year": "2013",
+        "journal-title": "Ophthalmology"
+      },
+      {
+        "issue": "8",
+        "key": "ref44",
+        "doi-asserted-by": "crossref",
+        "first-page": "3524",
+        "DOI": "10.1167/iovs.06-1118",
+        "article-title": "Parental history of myopia, sports and outdoor activities, and future myopia",
+        "volume": "48",
+        "author": "LA Jones",
+        "year": "2007",
+        "journal-title": "Invest Ophthalmol Vis Sci"
+      },
+      {
+        "issue": "4",
+        "key": "ref45",
+        "doi-asserted-by": "crossref",
+        "first-page": "527",
+        "DOI": "10.1001/archopht.126.4.527",
+        "article-title": "Myopia, lifestyle, and schooling in students of Chinese ethnicity in Singapore and Sydney",
+        "volume": "126",
+        "author": "KA Rose",
+        "year": "2008",
+        "journal-title": "Arch Ophthalmol"
+      },
+      {
+        "issue": "2",
+        "key": "ref46",
+        "doi-asserted-by": "crossref",
+        "first-page": "180",
+        "DOI": "10.1038/eye.2013.277",
+        "article-title": "Visual regulation of refractive development: insights from animal studies",
+        "volume": "28",
+        "author": "EL Smith 3rd",
+        "year": "2014",
+        "journal-title": "Eye (Lond)"
+      },
+      {
+        "key": "ref47",
+        "unstructured": "Infrared transmitting &amp; heat absorbing filter glass[Internet]. Kopp Glass 2016. [cited 2016 June 25]. Available from: <ext-link xmlns:xlink=\"http://www.w3.org/1999/xlink\" ext-link-type=\"uri\" xlink:href=\"http://www.koppglass.com/filter-catalog/ir-infrared-filter-glass.php\" xlink:type=\"simple\">http://www.koppglass.com/filter-catalog/ir-infrared-filter-glass.php</ext-link>."
+      },
+      {
+        "key": "ref48",
+        "unstructured": "Studio series soundroof of interior windows[Internet]. Acoustical Surfaces 2016. [cited 2016 June 25]. Available from: <ext-link xmlns:xlink=\"http://www.w3.org/1999/xlink\" ext-link-type=\"uri\" xlink:href=\"http://www.acousticalsurfaces.com/acoustic_windows/acoustical_windows.htm\" xlink:type=\"simple\">http://www.acousticalsurfaces.com/acoustic_windows/acoustical_windows.htm</ext-link>."
+      },
+      {
+        "key": "ref49",
+        "unstructured": "Daily outdoor activity to open a new eyecare era[Internet]. K-12 Education Administration 2016. [cited 2016 June 25] Available from: <ext-link xmlns:xlink=\"http://www.w3.org/1999/xlink\" ext-link-type=\"uri\" xlink:href=\"http://www.k12ea.gov.tw/ap/tpdenews_view.aspx?sn=98836a51-67cb-4f15-a67a-1b6f25f7ec88\" xlink:type=\"simple\">http://www.k12ea.gov.tw/ap/tpdenews_view.aspx?sn=98836a51-67cb-4f15-a67a-1b6f25f7ec88</ext-link>. Chinese."
+      },
+      {
+        "issue": "1 Suppl",
+        "key": "ref50",
+        "first-page": "78",
+        "article-title": "The prevalence of childhood overweight/obesity and the epidemic changes in 1985–2000 for Chinese school-age children and adolescents",
+        "volume": "9",
+        "author": "CY Ji",
+        "year": "2008",
+        "journal-title": "Obes Rev"
+      },
+      {
+        "issue": "1",
+        "key": "ref51",
+        "doi-asserted-by": "crossref",
+        "first-page": "119",
+        "DOI": "10.1016/j.pbiomolbio.2006.02.011",
+        "article-title": "Lee TK. Adverse effects of ultraviolet radiation: a brief review",
+        "volume": "92",
+        "author": "RP Gallagher",
+        "year": "2006",
+        "journal-title": "Prog Biophys Mol Biol"
+      },
+      {
+        "issue": "6 Suppl",
+        "key": "ref52",
+        "doi-asserted-by": "crossref",
+        "first-page": "S1",
+        "DOI": "10.2188/jea.9.6sup_1",
+        "article-title": "Ultraviolet radiation and health: from hazard identification to effective prevention",
+        "volume": "9",
+        "author": "N Yamaguchi",
+        "year": "1999",
+        "journal-title": "J Epidemiol"
+      },
+      {
+        "issue": "2",
+        "key": "ref53",
+        "doi-asserted-by": "crossref",
+        "first-page": "489",
+        "DOI": "10.1111/j.1751-1097.2007.00293.x",
+        "article-title": "Phytochemicals for prevention of solar ultraviolet radiation-induced damages",
+        "volume": "84",
+        "author": "VM Adhami",
+        "year": "2008",
+        "journal-title": "Photochem Photobiol"
+      },
+      {
+        "issue": "1",
+        "key": "ref54",
+        "doi-asserted-by": "crossref",
+        "first-page": "119",
+        "DOI": "10.1016/j.pbiomolbio.2006.02.011",
+        "article-title": "Adverse effects of ultraviolet radiation: a brief review",
+        "volume": "92",
+        "author": "RP Gallagher",
+        "year": "2006",
+        "journal-title": "Prog Biophys Mol Biol"
+      },
+      {
+        "key": "ref55",
+        "doi-asserted-by": "crossref",
+        "first-page": "53",
+        "DOI": "10.1186/2193-1801-3-53",
+        "article-title": "The supporting effects of high luminous conditions on grade 3 oral reading fluency scores",
+        "volume": "3",
+        "author": "MS Mott",
+        "year": "2014",
+        "journal-title": "Springerplus"
+      }
+    ],
+    "license": [
+      {
+        "start": {
+          "date-parts": [
+            [
+              2017,
+              7,
+              31
+            ]
+          ],
+          "date-time": "2017-07-31T00:00:00Z",
+          "timestamp": 1501459200000
+        },
+        "content-version": "vor",
+        "delay-in-days": 0,
+        "URL": "http://creativecommons.org/licenses/by/4.0/"
+      }
+    ]
+  },
+  "reference": {
+    "id": "https://openalex.org/W7183366",
+    "title": "Risk Factors for Incident Myopia in Australian Schoolchildren",
+    "doi": "https://doi.org/10.1016/j.ophtha.2013.02.035",
+    "ids": {
+      "openalex": "https://openalex.org/W7183366",
+      "doi": "https://doi.org/10.1016/j.ophtha.2013.02.035",
+      "mag": "7183366",
+      "pmid": "https://pubmed.ncbi.nlm.nih.gov/23672971"
+    },
+    "publication_year": 2013,
+    "publication_date": "2013-05-11",
+    "authorships": [
+      {
+        "author_position": "first",
+        "author": {
+          "id": "https://openalex.org/A5041551084",
+          "display_name": "Amanda Nicole French",
+          "orcid": "https://orcid.org/0000-0001-8114-8127",
+          "observed_orcids": [
+            "https://orcid.org/0000-0001-8114-8127"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I129604602",
+            "display_name": "The University of Sydney",
+            "ror": "https://ror.org/0384j8v12",
+            "country_code": "AU",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I129604602"
+            ]
+          }
+        ],
+        "countries": [
+          "AU"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Amanda N. French",
+        "raw_affiliation_strings": [
+          "Discipline of Orthoptics, Faculty of Health Sciences, University of Sydney, Sydney, NSW, Australia"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "Discipline of Orthoptics, Faculty of Health Sciences, University of Sydney, Sydney, NSW, Australia",
+            "institution_ids": [
+              "https://openalex.org/I129604602"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5019279868",
+          "display_name": "Ian George Morgan",
+          "orcid": "https://orcid.org/0000-0002-4548-3574",
+          "observed_orcids": [
+            "https://orcid.org/0000-0002-4548-3574"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I118347636",
+            "display_name": "Australian National University",
+            "ror": "https://ror.org/019wvm592",
+            "country_code": "AU",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I118347636"
+            ]
+          }
+        ],
+        "countries": [
+          "AU"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Ian G. Morgan",
+        "raw_affiliation_strings": [
+          "ARC Centre of Excellence in Vision Science, Research School of Biology, The Australian National University, Canberra, ACT, Australia"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "ARC Centre of Excellence in Vision Science, Research School of Biology, The Australian National University, Canberra, ACT, Australia",
+            "institution_ids": [
+              "https://openalex.org/I118347636"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "middle",
+        "author": {
+          "id": "https://openalex.org/A5010716388",
+          "display_name": "Paul L.R. Mitchell",
+          "orcid": "https://orcid.org/0000-0003-2470-3790",
+          "observed_orcids": [
+            "https://orcid.org/0000-0003-2470-3790"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I129604602",
+            "display_name": "The University of Sydney",
+            "ror": "https://ror.org/0384j8v12",
+            "country_code": "AU",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I129604602"
+            ]
+          }
+        ],
+        "countries": [
+          "AU"
+        ],
+        "is_corresponding": false,
+        "raw_author_name": "Paul Mitchell",
+        "raw_affiliation_strings": [
+          "Department of Ophthalmology, Centre for Vision Research, Westmead Millennium Institute, University of Sydney, Sydney, NSW, Australia"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "Department of Ophthalmology, Centre for Vision Research, Westmead Millennium Institute, University of Sydney, Sydney, NSW, Australia",
+            "institution_ids": [
+              "https://openalex.org/I129604602"
+            ]
+          }
+        ]
+      },
+      {
+        "author_position": "last",
+        "author": {
+          "id": "https://openalex.org/A5026484363",
+          "display_name": "Kathryn Ailsa Rose",
+          "orcid": "https://orcid.org/0000-0003-2851-4145",
+          "observed_orcids": [
+            "https://orcid.org/0000-0003-2851-4145"
+          ]
+        },
+        "institutions": [
+          {
+            "id": "https://openalex.org/I129604602",
+            "display_name": "The University of Sydney",
+            "ror": "https://ror.org/0384j8v12",
+            "country_code": "AU",
+            "type": "education",
+            "lineage": [
+              "https://openalex.org/I129604602"
+            ]
+          }
+        ],
+        "countries": [
+          "AU"
+        ],
+        "is_corresponding": true,
+        "raw_author_name": "Kathryn A. Rose",
+        "raw_affiliation_strings": [
+          "Discipline of Orthoptics, Faculty of Health Sciences, University of Sydney, Sydney, NSW, Australia"
+        ],
+        "raw_orcid": null,
+        "affiliations": [
+          {
+            "raw_affiliation_string": "Discipline of Orthoptics, Faculty of Health Sciences, University of Sydney, Sydney, NSW, Australia",
+            "institution_ids": [
+              "https://openalex.org/I129604602"
+            ]
+          }
+        ]
+      }
+    ],
+    "primary_location": {
+      "id": "doi:10.1016/j.ophtha.2013.02.035",
+      "doi": "https://doi.org/10.1016/j.ophtha.2013.02.035",
+      "is_oa": false,
+      "landing_page_url": "https://doi.org/10.1016/j.ophtha.2013.02.035",
+      "pdf_url": null,
+      "source": {
+        "id": "https://openalex.org/S207341048",
+        "display_name": "Ophthalmology",
+        "issn_l": "0161-6420",
+        "issn": [
+          "0161-6420",
+          "1549-4713"
+        ],
+        "is_oa": false,
+        "is_in_doaj": false,
+        "is_core": true,
+        "listed_in": [
+          "cwts-core",
+          "dongbi-a",
+          "doyens",
+          "jufo-3",
+          "ki-jl-3",
+          "medline",
+          "norway-2",
+          "poland-200",
+          "russia-white-list-1",
+          "vabb-shw"
+        ],
+        "host_organization": "https://openalex.org/P4310320990",
+        "host_organization_name": "Elsevier BV",
+        "host_organization_lineage": [
+          "https://openalex.org/P4310320990"
+        ],
+        "host_organization_lineage_names": [
+          "Elsevier BV"
+        ],
+        "type": "journal"
+      },
+      "license": null,
+      "license_id": null,
+      "version": "publishedVersion",
+      "is_accepted": true,
+      "is_published": true,
+      "raw_source_name": "Ophthalmology",
+      "raw_type": "journal-article"
+    },
+    "type": "article",
+    "is_retracted": false,
+    "referenced_works": [
+      "https://openalex.org/W15890387",
+      "https://openalex.org/W16762569",
+      "https://openalex.org/W198015242",
+      "https://openalex.org/W1515372247",
+      "https://openalex.org/W1553268000",
+      "https://openalex.org/W1567172345",
+      "https://openalex.org/W1593376831",
+      "https://openalex.org/W1602443498",
+      "https://openalex.org/W1964657188",
+      "https://openalex.org/W1974004836",
+      "https://openalex.org/W1983046758",
+      "https://openalex.org/W1986522687",
+      "https://openalex.org/W1989259302",
+      "https://openalex.org/W1992665713",
+      "https://openalex.org/W1996094847",
+      "https://openalex.org/W1997949239",
+      "https://openalex.org/W2001256485",
+      "https://openalex.org/W2002570054",
+      "https://openalex.org/W2024556531",
+      "https://openalex.org/W2034644592",
+      "https://openalex.org/W2036280802",
+      "https://openalex.org/W2041002427",
+      "https://openalex.org/W2048228565",
+      "https://openalex.org/W2050072467",
+      "https://openalex.org/W2051961090",
+      "https://openalex.org/W2054799494",
+      "https://openalex.org/W2057760857",
+      "https://openalex.org/W2062560792",
+      "https://openalex.org/W2079359493",
+      "https://openalex.org/W2082158170",
+      "https://openalex.org/W2084969988",
+      "https://openalex.org/W2091131990",
+      "https://openalex.org/W2101066852",
+      "https://openalex.org/W2112915164",
+      "https://openalex.org/W2114251539",
+      "https://openalex.org/W2125538232",
+      "https://openalex.org/W2133763585",
+      "https://openalex.org/W2135463364",
+      "https://openalex.org/W2137264803",
+      "https://openalex.org/W2147707410",
+      "https://openalex.org/W2149705075",
+      "https://openalex.org/W2150514205",
+      "https://openalex.org/W2154638192",
+      "https://openalex.org/W2157825442",
+      "https://openalex.org/W2167326728",
+      "https://openalex.org/W2400470028",
+      "https://openalex.org/W4255271122",
+      "https://openalex.org/W6600655795"
+    ]
+  }
+}

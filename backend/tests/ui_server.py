@@ -7,11 +7,20 @@ from app.intelligence_schemas import ResearchIntelligenceResponse
 from app.model_providers import ModelResponse
 from app.stage3_schemas import GraphExtraction
 import app.stage3 as stage3
+import app.literature as literature
+from app.literature_schemas import SearchPlan,LiteratureAnalysis
+from app.scholarly_providers import normalize_openalex,normalize_pmc,normalize_crossref,ScholarlyError
+import json
 import app.intelligence as intelligence
 
 class UITestProvider:
     def generate_structured_response(self,request):
         # Only deterministic fixtures used by frontend tests; never a production fallback.
+        if request.schema is SearchPlan:
+            return ModelResponse(SearchPlan(queries=[{'strategy':'methodological','query':'myopia bright classroom','rationale':'Test-only search plan.'}],limitations=['Fixture inference.']))
+        if request.schema is LiteratureAnalysis:
+            source=request.context['sources'][0];target=request.context['research_objects'][0]['id']
+            return ModelResponse(LiteratureAnalysis(summary='The source reports feasibility, not clinical efficacy.',findings=[{'snapshot_id':source['snapshot_id'],'target_object_id':target,'classification':'qualifies','claim':'The study assessed light characteristics and user acceptability.','rationale':'Feasibility does not establish a clinical myopia effect.','passage':source['abstract'][:80],'limitations':['Abstract only.'],'method_notes':['Questionnaires and light measurements.'],'missing_information':['Clinical causal efficacy not established.']}],disagreements=[],limitations=['Fixture inference; real recorded CC-BY metadata.']))
         if request.schema is GraphExtraction:
             source=request.context['passages'][0]
             passage={'object_id':source['id'],'revision':source['revision'],'excerpt':source['body'][:80]}
@@ -23,6 +32,18 @@ class UITestProvider:
         return ModelResponse(ResearchIntelligenceResponse(answer='Deterministic test provider response grounded in supplied object IDs.',uncertainties=['Test-only response'],context_references=[source] if source else [],proposals=[proposal],limitations=['No paid model call in this test.']))
 if __name__=='__main__':
     import uvicorn
+    class UIArchive:
+        def __init__(self,name):self.name=name
+        def paper(self):
+            records=json.loads((Path(__file__).parent/'fixtures/literature.json').read_text(encoding='utf-8'))
+            return {'OpenAlex':normalize_openalex,'Europe PMC':normalize_pmc,'Crossref':normalize_crossref}[self.name](records[{'OpenAlex':'openalex','Europe PMC':'pmc','Crossref':'crossref'}[self.name]])
+        def search(self,query,budget):return [self.paper()]
+        def resolve(self,kind,value,budget):
+            p=self.paper()
+            if p.identifiers.get(kind)!=value:raise ScholarlyError(self.name,'not_found','Fixture identifier was not found.')
+            return p
+    literature.PROVIDERS={name:UIArchive(name) for name in ['OpenAlex','Europe PMC','Crossref']}
+    literature.route=lambda *args:('Test provider','test-only-model',UITestProvider())
     intelligence.route=lambda *args:('Test provider','test-only-model',UITestProvider())
     stage3.route=lambda *args:('Test provider','test-only-model',UITestProvider())
     uvicorn.run(app,host='127.0.0.1',port=8002,log_level='warning')

@@ -46,6 +46,13 @@ def get(s, cls, id, pid=None):
     if not value or (pid and value.project_id != pid) or (isinstance(value, Object) and value.deleted): raise Problem('Record not found', 404)
     return value
 def rows(s, cls, pid): return s.scalars(select(cls).where(cls.project_id == pid)).all()
+def validate_revision_source(s,pid,target_id,source_id):
+    evidence=s.get(Evidence,source_id)
+    if evidence:
+        if evidence.project_id!=pid or target_id not in evidence.target_hypothesis_ids:raise Problem('Revision evidence is not linked to this hypothesis',422)
+        return
+    from app.literature import validate_revision_claim
+    validate_revision_claim(s,pid,target_id,source_id)
 def dump(value):
     return {column.key: getattr(value, column.key) for column in value.__mapper__.column_attrs}
 def event(s, pid, kind, ids=None, payload=None, operation=None, actor='human'):
@@ -200,7 +207,7 @@ def patch_object(pid:str,oid:str,data:ObjectPatch):
     data=data.model_dump(exclude_unset=True)
     with transaction() as s:
         o=get(s,Object,oid,pid)
-        if o.object_type in ['evidence','experiment']:raise Problem('Recorded experimental artifacts are immutable')
+        if o.object_type in ['evidence','experiment'] or o.scientific_metadata.get('literature_source_id'):raise Problem('Recorded experiment/source artifacts and reviewed literature claims are immutable; use a new review instead.')
         if 'type' in data and data['type'].lower()!=o.object_type:
             if o.object_type not in ['note','question','hypothesis','observation'] or data['type'] not in ['Note','Question','Hypothesis','Observation']:raise Problem('Recorded scientific artifact types are immutable')
             o.object_type=data['type'].lower()
@@ -281,8 +288,7 @@ def propose(s,pid,data):
     if data.action_type.startswith('modify'):
         if payload['original_statement']!=target.body:raise Problem('Original statement is stale')
         for eid in payload['evidence_ids']:
-            evidence=get(s,Evidence,eid,pid)
-            if target.id not in evidence.target_hypothesis_ids:raise Problem('Revision evidence is not linked to this hypothesis',422)
+            validate_revision_source(s,pid,target.id,eid)
         payload['base_revision']=target.current_revision
     op=Operation(id=uid(),project_id=pid,kind=data.action_type.split('.')[0],action_type=data.action_type,target_object_ids=data.target_object_ids,proposal_payload=payload,rationale=payload.get('rationale','Human construction'),assumptions=payload.get('assumptions',[]),created_at=now(),updated_at=now(),status='draft')
     s.add(op);s.flush()
@@ -409,3 +415,6 @@ app.include_router(intelligence_router)
 
 from app.stage3 import router as stage3_router
 app.include_router(stage3_router)
+
+from app.literature import router as literature_router
+app.include_router(literature_router)

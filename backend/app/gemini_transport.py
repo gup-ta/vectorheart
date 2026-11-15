@@ -6,7 +6,8 @@ deliberately omit that wire keyword. Raw output still undergoes strict canonical
 validation, so unknown/missing fields never become accepted scientific proposals.
 """
 import json
-from pydantic import BaseModel, ValidationError
+from typing import Literal
+from pydantic import BaseModel, ValidationError, Field
 from app.intelligence_schemas import ResearchIntelligenceResponse, ScientificProposal, ProposalAction, RelationshipType
 
 def proposal_errors(exc):
@@ -36,20 +37,32 @@ class GeminiProposal(BaseModel):
     assumptions:list[str]
     predictions:list[str]
     limitations:list[str]
-    referenced_object_ids:list[str]
+    referenced_object_ids:list[str]=Field(description='Canonical IDs from project context objects only. Paper source IDs belong in literature_source_ids.')
     target_object_id:str|None
     adapter_id:str|None
     adapter_parameters:GeminiAdapterParameters|None
     evidence_ids:list[str]
     source_object_id:str|None=None
     relationship_type:RelationshipType|None=None
+    literature_source_ids:list[str]=Field(default_factory=list)
 
 class GeminiScientificResponse(BaseModel):
     answer:str
     uncertainties:list[str]
-    context_references:list[str]
+    context_references:list[str]=Field(description='Canonical research-object IDs from objects, not source or snapshot IDs.')
+    literature_references:list[str]=Field(default_factory=list,description='Actual source_id values from supplied verified literature records, or empty.')
     proposals:list[GeminiProposal]
     limitations:list[str]
+    tool_request:'GeminiLiteratureToolRequest | None'=None
+
+class GeminiLiteratureToolRequest(BaseModel):
+    tool:Literal['literature.search','literature.resolve_identifier','literature.inspect_source','literature.find_related']
+    query:str|None
+    identifier:str|None
+    source_id:str|None
+    rationale:str
+
+GeminiScientificResponse.model_rebuild()
 
 def normalize_gemini_response(text, schema=ResearchIntelligenceResponse):
     raw=json.loads(text)

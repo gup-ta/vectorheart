@@ -32,6 +32,12 @@ def validated_proposal(s,pid,p,context):
     refs=set(p.referenced_object_ids+p.evidence_ids+([p.target_object_id] if p.target_object_id else [])+([p.source_object_id] if p.source_object_id else []))
     if not refs.issubset(included):raise ValueError('Proposal references objects outside supplied context')
     for oid in refs:k.get(s,Object,oid,pid)
+    if p.literature_source_ids:
+        from app.literature import scoped_snapshot
+        supplied={v['source_id']:v for v in context.get('literature',[])}
+        for sid in p.literature_source_ids:
+            if sid not in supplied:raise ValueError('Literature citation was not supplied in this research context.')
+            scoped_snapshot(s,pid,sid,supplied[sid]['snapshot_id'])
     target=k.get(s,Object,p.target_object_id,pid) if p.target_object_id else None
     if p.action_type=='propose_relationship':
         if not p.source_object_id or not p.target_object_id or not p.relationship_type:raise ValueError('Choose two existing research objects and a supported relationship type.')
@@ -52,8 +58,7 @@ def validated_proposal(s,pid,p,context):
     if p.action_type=='propose_revision':
         if not p.evidence_ids:raise ValueError('Revision needs linked measured evidence; discuss unevidenced revisions without a mutation proposal')
         for eid in p.evidence_ids:
-            e=k.get(s,Evidence,eid,pid)
-            if target.id not in e.target_hypothesis_ids:raise ValueError('Evidence does not target this hypothesis')
+            k.validate_revision_source(s,pid,target.id,eid)
         if target.current_revision!=included[target.id]['revision_number']:raise ValueError('Hypothesis changed during inference')
         payload['base_revision']=target.current_revision;payload['original_statement']=target.body
     return payload
@@ -95,7 +100,7 @@ def perform_turn(pid,cid,data,context_override=None,instructions='',run_provenan
         context,history=context_override if context_override is not None else ResearchContextBuilder().build(s,pid,data.selected_object_id,cid,data.message)
         # Serialize one turn at a time per conversation, without holding a DB transaction over inference.
         if s.scalar(select(ResearchMessage).where(ResearchMessage.conversation_id==cid,ResearchMessage.status=='running')):raise k.Problem('A turn is already running. Refresh its state before sending another.')
-        msg=ResearchMessage(id=uid(),conversation_id=cid,role='assistant',content='',mode=data.mode,status='running',request_key=data.idempotency_key,request_hash=digest,context={'object_revisions':[{key:o[key] for key in ['id','revision_id','revision_number']} for o in context['objects']],'truncated':context['truncated'],'omitted_objects':context['omitted_objects']})
+        msg=ResearchMessage(id=uid(),conversation_id=cid,role='assistant',content='',mode=data.mode,status='running',request_key=data.idempotency_key,request_hash=digest,context={'object_revisions':[{key:o[key] for key in ['id','revision_id','revision_number']} for o in context['objects']],'truncated':context['truncated'],'omitted_objects':context['omitted_objects'],'literature_references':[{key:v[key] for key in ['source_id','snapshot_id','content_hash','access_level']} for v in context.get('literature',[])]})
         s.add(ResearchMessage(conversation_id=cid,role='user',content=data.message,mode=data.mode,status='completed',request_key=data.idempotency_key,request_hash=digest))
         s.add(msg);s.flush();mid=msg.id;settings=project.settings;c.updated_at=now()
     provenance={'prompt_version':PROMPT_VERSION,'generated_at':now(),'mode':data.mode,'generation_parameters':{},'estimated_cost':None}
@@ -111,7 +116,10 @@ def perform_turn(pid,cid,data,context_override=None,instructions='',run_provenan
         result=provider.generate_structured_response(request)
         if not run_provenance:result=correct_proposals(provider,request,result)
         response=ResearchIntelligenceResponse.model_validate(result.output.model_dump())
+        from app.literature import normalize_research_citations
+        response=normalize_research_citations(response,context)
         if not set(response.context_references).issubset({o['id'] for o in context['objects']}):raise ProviderError('invalid_references','The response cited objects outside the supplied context. No proposals were saved; retry the question.')
+        if not set(response.literature_references).issubset({v['source_id'] for v in context.get('literature',[])}):raise ProviderError('invalid_references','The response cited a publication outside the retrieved literature context.')
         with k.transaction() as s:
             msg=s.get(ResearchMessage,mid);msg.content=response.answer;msg.status='completed';msg.provenance={**provenance,'generated_at':now(),'usage':result.usage,'proposal_correction':result.correction}
             rejected=list(result.rejected_proposals)
@@ -129,7 +137,11 @@ def perform_turn(pid,cid,data,context_override=None,instructions='',run_provenan
                             raise ValueError('This directed relationship already exists; no duplicate proposal is needed.')
                 except (ValueError,k.Problem) as exc:rejected.append({'index':i,'reason':str(exc) if isinstance(exc,ValueError) else exc.message});continue
                 s.add(ResearchProposal(project_id=pid,source_message_id=mid,action_type=p.action_type,payload=payload,source_references=p.referenced_object_ids,provenance=msg.provenance))
-            msg.response_details={'uncertainties':response.uncertainties,'limitations':response.limitations,'context_references':response.context_references,'rejected_proposals':rejected}
+            tool=None
+            if response.tool_request:
+                from app.literature import validate_tool
+                tool=validate_tool(s,pid,response.tool_request.model_dump()).model_dump()
+            msg.response_details={'tool_request':tool,'uncertainties':response.uncertainties,'limitations':response.limitations,'context_references':response.context_references,'literature_references':response.literature_references,'rejected_proposals':rejected}
             s.flush();return message_view(s,msg)
     except Exception as exc:
         error=exc if isinstance(exc,ProviderError) else safe_error(exc)
@@ -141,6 +153,12 @@ def perform_turn(pid,cid,data,context_override=None,instructions='',run_provenan
 @router.post('/v1/projects/{pid}/intelligence/proposals/{proposal_id}/accept')
 def accept(pid:str,proposal_id:str):
     k=services()
+    with Session() as lookup:
+        candidate=k.get(lookup,ResearchProposal,proposal_id,pid)
+        literature=candidate.action_type=='propose_literature_relationship'
+    if literature:
+        from app.literature import accept_proposal
+        return accept_proposal(pid,proposal_id)
     with k.transaction() as s:
         p=k.get(s,ResearchProposal,proposal_id,pid)
         if p.status=='accepted':return proposal_view(p)
@@ -148,7 +166,7 @@ def accept(pid:str,proposal_id:str):
         payload=p.payload
         raw=ScientificProposal.model_validate({key:value for key,value in payload.items() if key in ScientificProposal.model_fields})
         source=s.get(ResearchMessage,p.source_message_id)
-        context={'objects':source.context['object_revisions']}
+        context={'objects':source.context['object_revisions'],'literature':source.context.get('literature_references',[])}
         referenced=set(raw.referenced_object_ids+raw.evidence_ids+([raw.target_object_id] if raw.target_object_id else [])+([raw.source_object_id] if raw.source_object_id else []))
         for ref in context['objects']:
             if ref['id'] in referenced and k.get(s,Object,ref['id'],pid).current_revision!=ref['revision_number']:
@@ -158,7 +176,7 @@ def accept(pid:str,proposal_id:str):
             if target.current_revision!=payload['base_revision']:raise k.Problem('Hypothesis changed since this proposal. Request a new proposal against its current revision.')
         try:validated_proposal(s,pid,raw,context)
         except ValueError as exc:raise k.Problem(str(exc),422)
-        provenance={**p.provenance,'source_message_id':p.source_message_id,'proposal_id':p.id,'source_references':p.source_references,'accepted_by':'human','accepted_at':now()}
+        provenance={**p.provenance,'source_message_id':p.source_message_id,'proposal_id':p.id,'source_references':p.source_references,'literature_references':[v for v in source.context.get('literature_references',[]) if v['source_id'] in raw.literature_source_ids],'accepted_by':'human','accepted_at':now()}
         construction_source=next((k.get(s,Object,oid,pid) for oid in raw.referenced_object_ids if k.get(s,Object,oid,pid).object_type in ['note','question']),None) if p.action_type=='create_hypothesis' else None
         if p.action_type=='propose_relationship':
             existing=s.scalar(select(Relationship).where(Relationship.project_id==pid,Relationship.source_object_id==raw.source_object_id,Relationship.target_object_id==raw.target_object_id,Relationship.relationship_type==raw.relationship_type))
@@ -192,6 +210,9 @@ def accept(pid:str,proposal_id:str):
             k.apply_hypothesis_revision(s,target,op.proposal_payload,op.id,provenance)
             op.status='completed';op.updated_at=now();k.event(s,pid,'operation_completed',[raw.target_object_id],operation=op.id,actor='kernel')
             p.result_ids={'operation_id':op.id,'object_id':raw.target_object_id}
+        if raw.literature_source_ids:
+            from app.literature import link_proposal_sources
+            link_proposal_sources(s,pid,p,raw.literature_source_ids,source.context.get('literature_references',[]))
         p.status='accepted';p.updated_at=now()
         k.event(s,pid,'intelligence_proposal_accepted',list(dict.fromkeys(filter(None,[p.result_ids.get('object_id'),raw.source_object_id,raw.target_object_id]))),{'proposal_id':p.id,'provenance':provenance,'result_ids':p.result_ids},p.result_ids.get('operation_id'),'human')
         result=proposal_view(p)
