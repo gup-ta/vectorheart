@@ -18,7 +18,7 @@ export default function Home() {
   return <div className="page-shell">
     <header className="site-header"><Brand /><span className="header-note">A little room for big questions.</span></header>
     <main className="home-main">
-      <section className="welcome"><p className="eyebrow"><span className="tiny-line" /> YOUR RESEARCH WORKSPACE</p><h1>Welcome to VectorHeart<span className="accent">.</span></h1><p className="subtitle">A place for your ideas to become discoveries.</p></section>
+      <section className="welcome"><h1>Welcome to VectorHeart<span className="accent">.</span></h1></section>
       <section aria-label="Your projects" className="projects-section">
         <div className="projects-heading"><div className="flex items-baseline gap-3"><h2>Your projects</h2><span className="project-count">{String(projects.length).padStart(2, "0")}</span></div><button disabled={!ready} className="new-project" onClick={() => setEditing("new")}><Plus size={16} /> New project</button></div>
         <div className="search-field"><Search size={18} strokeWidth={1.5} /><input aria-label="Search projects" type="search" placeholder="Find a thought, a question, a project…" value={search} onChange={e => setSearch(e.target.value)} /><span className="search-hint">Search your workspace</span></div>
@@ -26,7 +26,7 @@ export default function Home() {
           <span className="row-number">{String(index + 1).padStart(2, "0")}</span><Link href={`/projects/${project.id}`} className="project-link"><h3>{project.title}<ArrowUpRight size={18} /></h3><p>{project.description || "An open question. A place to begin."}</p><time dateTime={project.updatedAt}>Updated {formatDate(project.updatedAt)}</time></Link>
           <div className="row-actions"><button className="icon-button" aria-label={`Rename ${project.title}`} onClick={() => setEditing(project)}><Pencil size={16} /></button><button className="icon-button delete-button" aria-label={`Delete ${project.title}`} onClick={() => { if (window.confirm(`Delete “${project.title}” and its notes? This cannot be undone.`)) remove(project.id); }}><Trash2 size={16} /></button></div>
         </li>)}</ul> : <div className="empty-state"><Sprout size={32} strokeWidth={1.2} className="empty-icon" /><h3>{search ? "No projects found." : "Every discovery starts with a question."}</h3><p>{search ? "Try a different name or a few other words." : "Give your next idea a place to grow."}</p>{!search && <button className="text-button accent mt-5" onClick={() => setEditing("new")}>Start your first project <ArrowRight size={16} /></button>}</div>}
-        <div className="list-footer"><span>{projects.length ? `${projects.length} ${projects.length === 1 ? "idea" : "ideas"} in progress` : "The beginning of something."}</span><span>Saved locally · Yours to explore</span></div>
+        {projects.length > 0 && <div className="list-footer"><span>{`${projects.length} ${projects.length === 1 ? "idea" : "ideas"} in progress`}</span></div>}
       </section>
       <footer className="workspace-footer"><span className="footer-mark">✳</span><p>Stay curious. Follow the question.</p><span>VECTORHEART / V0.1</span></footer>
     </main>
