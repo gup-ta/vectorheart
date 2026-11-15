@@ -58,6 +58,19 @@ def revise(s, obj, title, body, metadata=None, reason='Notebook save', actor='hu
     obj.current_revision = previous.revision_number + 1 if previous else 1
     obj.title, obj.body, obj.scientific_metadata, obj.updated_at = title, body, metadata, now()
     s.add(Revision(object_id=obj.id, revision_number=obj.current_revision, title_snapshot=title, body_snapshot=body, metadata_snapshot=metadata, previous_revision_id=previous.revision_id if previous else None, actor_type=actor, created_at=now(), reason=reason))
+def apply_hypothesis_revision(s,target,payload,operation_id,provenance=None):
+    if target.current_revision!=payload['base_revision']:raise Problem('Hypothesis changed since proposal')
+    metadata={**target.scientific_metadata,'statement':payload['proposed_statement'],'epistemic_status':'unresolved','revision_scope':payload['scope'],'remaining_uncertainties':payload['remaining_uncertainties']}
+    if provenance:metadata['model_provenance']=provenance
+    revise(s,target,target.title,payload['proposed_statement'],metadata,payload['rationale'])
+    for eid in payload['evidence_ids']:relationship(s,target.project_id,{'sourceId':target.id,'targetId':eid,'type':'derived_from','evidence_id':eid})
+    event(s,target.project_id,'revision_accepted',[target.id],operation=operation_id)
+def apply_hypothesis_construction(s,pid,target,payload,provenance=None,title=None):
+    metadata={**payload,'epistemic_status':'proposed'}
+    if provenance:metadata['model_provenance']=provenance
+    obj=add_object(s,pid,'hypothesis',title or payload['statement'],payload['statement'],metadata,actor='model' if provenance else 'human')
+    relationship(s,pid,{'sourceId':obj.id,'targetId':target.id,'type':'derived_from'})
+    return obj
 def add_object(s, pid, typ, title, body, metadata=None, id=None, actor='human'):
     if typ.lower()=='hypothesis':
         metadata={'statement':body,'assumptions':[],'predicted_outcomes':[],'limitations':[],'epistemic_status':'proposed',**(metadata or {})}
@@ -120,7 +133,9 @@ def relationship(s,pid,r):
     value=Relationship(id=r.get('id') or uid(),project_id=pid,source_object_id=source,target_object_id=target,relationship_type=typ,evidence_id=r.get('evidence_id'),created_at=now(),details={})
     s.add(value);s.flush();return value
 @app.get('/v1/health')
-def health(): return {'status':'ok','schema_version':1,'capabilities':[ADAPTER,'manual_proposals'],'providers':{'manual':'available','Google Gemini':'not implemented','OpenAI':'not implemented','Anthropic':'not implemented'}}
+def health():
+    from app.model_providers import capabilities
+    return {'status':'ok','schema_version':1,'capabilities':[ADAPTER,'manual_proposals','research_intelligence'],'providers':{'manual':'available',**{p['provider']:'credential configured' if p['credentials_configured'] else 'unavailable' for p in capabilities()}}}
 @app.get('/v1/projects')
 def projects():
     with Session() as s:return [project_view(s,p) for p in s.scalars(select(Project))]
@@ -330,13 +345,9 @@ def execute_locked(pid,oid):
         with transaction() as s:
             o=get(s,Operation,oid,pid);target=get(s,Object,target_id,pid)
             if kind=='construct':
-                obj=add_object(s,pid,'hypothesis',payload['statement'],payload['statement'],{**payload,'epistemic_status':'proposed'})
-                relationship(s,pid,{'sourceId':obj.id,'targetId':target.id,'type':'derived_from'})
+                apply_hypothesis_construction(s,pid,target,payload)
             elif kind=='modify':
-                if target.current_revision!=payload['base_revision']:raise Problem('Hypothesis changed since proposal')
-                revise(s,target,target.title,payload['proposed_statement'],{**target.scientific_metadata,'statement':payload['proposed_statement'],'epistemic_status':'unresolved','revision_scope':payload['scope'],'remaining_uncertainties':payload['remaining_uncertainties']},payload['rationale'])
-                for eid in payload['evidence_ids']:relationship(s,pid,{'sourceId':target.id,'targetId':eid,'type':'derived_from','evidence_id':eid})
-                event(s,pid,'revision_accepted',[target.id],operation=oid)
+                apply_hypothesis_revision(s,target,payload,oid)
             else:
                 run=get(s,Run,o.execution_id,pid);run.status='completed';run.completed_at=now();run.duration_ms=int((time.monotonic()-started)*1000);run.measured_outputs=result;run.environment_metadata=result['environment'];run.validation_results=checks;run.artifact_references=[{'kind':'embedded_samples','checksum':result['checksum'],'count':len(result['samples'])}]
                 experiment=add_object(s,pid,'experiment','Intervention do(X = '+str(payload['parameters']['intervention_value'])+')','Synthetic causal intervention; see recorded run.',{'run_id':run.id,'parameters':payload['parameters']},actor='experiment_runner')
@@ -390,3 +401,6 @@ def demo(pid:str):
             o=add_object(s,pid,'hypothesis','Hypothesis '+world,statement,{'causal_demo':True,'candidate_world':world,'statement':statement,'assumptions':['Independent standard-normal noise','Both observational covariance matrices are [[1,0.8],[0.8,1]]'],'predicted_outcomes':['Under do(X=2), A mean Y=1.6; B mean Y=0'],'limitations':LIMITATIONS,'epistemic_status':'proposed'})
             if world=='A':propose(s,pid,Proposal(action_type='destroy.test_hypothesis',target_object_ids=[o.id],proposal_payload={}))
         event(s,pid,'first_heartbeat_created');return {'ok':True}
+
+from app.intelligence import router as intelligence_router
+app.include_router(intelligence_router)

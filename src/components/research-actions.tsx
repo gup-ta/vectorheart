@@ -14,6 +14,7 @@ export function ResearchActions({project}:{project:Project}) {
   const path=`projects/${project.id}`;
   const load=useCallback(async()=>{const [o,e,r,v]=await Promise.all([kernel<Operation[]>(`${path}/operations`),kernel<Trail[]>(`${path}/events?limit=500`),kernel<Run[]>(`${path}/runs`),kernel<Evidence[]>(`${path}/evidence`)]);setOperations(o);setEvents(e);setRuns(r);setEvidence(v);},[path]);
   useEffect(()=>{void Promise.resolve().then(load).catch(e=>setError(String(e)));},[load]);
+  useEffect(()=>{const refresh=()=>{void load().catch(e=>setError(String(e)));};window.addEventListener('vectorheart-research-refresh',refresh);return()=>window.removeEventListener('vectorheart-research-refresh',refresh);},[load]);
   async function perform(action:()=>Promise<unknown>){setBusy(true);setError("");try{await sync();await action();await sync();await load();}catch(e){setError(String(e));}finally{setBusy(false);}}
   const object=project.objects.find(o=>o.id===target);
   const linked=evidence.filter(e=>e.target_hypothesis_ids.includes(target));

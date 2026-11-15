@@ -1,10 +1,4 @@
-import os
-import tempfile
 from pathlib import Path
-os.environ['KERNEL_DB_PATH']=str(Path(tempfile.mkdtemp())/'test.sqlite3')
-from alembic.config import Config
-from alembic import command
-command.upgrade(Config(str(Path(__file__).resolve().parents[1]/'alembic.ini')),'head')
 from fastapi.testclient import TestClient
 from app.main import app
 from app.science import Parameters, simulate, predictions, validate_result

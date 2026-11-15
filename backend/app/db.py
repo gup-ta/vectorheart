@@ -6,6 +6,8 @@ from sqlalchemy import create_engine, event, String, Integer, JSON, ForeignKey, 
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, sessionmaker
 
 ROOT = Path(__file__).resolve().parents[2]
+from dotenv import load_dotenv
+load_dotenv(ROOT / 'backend/.env', override=False)
 DATABASE = Path(os.environ.get('KERNEL_DB_PATH', ROOT / '.vectorheart/kernel.sqlite3')).resolve()
 DATABASE.parent.mkdir(parents=True, exist_ok=True)
 engine = create_engine('sqlite:///' + str(DATABASE), connect_args={'check_same_thread': False, 'timeout': 30})

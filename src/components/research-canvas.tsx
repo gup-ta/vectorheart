@@ -86,7 +86,7 @@ function CanvasSurface({ project }: { project: Project }) {
     if (project.relationships.some(r => r.id === id) && mutate({ kind: "disconnect", projectId: project.id, relationshipId: id })) changeMode("select");
   }
   function chooseNode(id: string) {
-    if (mode === "select") return;
+    if (mode === "select") {window.dispatchEvent(new CustomEvent('vectorheart-object-focus',{detail:{projectId:project.id,objectId:id}}));return;}
     lastToolClick.current = Date.now();
     setCandidates([]); setFeedback("");
     if (!endpoint || !placedIds.has(endpoint)) { setEndpoint(id); return; }

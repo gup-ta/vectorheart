@@ -8,3 +8,8 @@ See [Scientific Kernel setup and architecture](docs/SCIENTIFIC_KERNEL.md) for
 PowerShell setup, safe browser-data import, First Heartbeat demo, API, tests,
 provenance, and security limitations. Start the Python kernel and run `npm run dev`.
 Do not expose this unauthenticated prototype publicly.
+
+[Research Intelligence](docs/RESEARCH_INTELLIGENCE.md) adds server-side OpenAI,
+Gemini and Anthropic routing, bounded scientific context, persistent conversations,
+and proposal review. Configure a server API key and account model in `backend/.env`,
+run Alembic upgrade head, and use the existing Python/Next.js startup commands.

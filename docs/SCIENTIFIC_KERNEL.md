@@ -1,5 +1,10 @@
 # Scientific Kernel v0.1
 
+Research Intelligence now extends this kernel. See
+[Research Intelligence](RESEARCH_INTELLIGENCE.md) for provider setup, additive
+migration 0002, conversations, and human-reviewed model proposals. The older
+provider-deferred notes below describe the initial Phase 3 baseline.
+
 The kernel preserves a scientific cycle: human proposal, approval, trusted execution,
 validated simulation evidence, and an explicitly approved revision. It is a local,
 single-user prototype, not a public multi-user service.

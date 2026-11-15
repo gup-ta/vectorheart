@@ -4,8 +4,8 @@ import { JSDOM } from "jsdom";
 
 const dom = new JSDOM('<!doctype html><html><body><div id="root"></div></body></html>', { url: "http://localhost:3000", pretendToBeVisual: true });
 globalThis.self = dom.window;
-after(() => dom.window.close());
-for (const key of ["window", "document", "HTMLElement", "HTMLInputElement", "HTMLTextAreaElement", "HTMLSelectElement", "HTMLDialogElement", "Element", "Node", "MutationObserver", "Event", "MouseEvent", "StorageEvent", "localStorage", "getComputedStyle"]) {
+after(async () => { if(root) await act(async()=>root.unmount());dom.window.close(); });
+for (const key of ["window", "document", "HTMLElement", "HTMLInputElement", "HTMLTextAreaElement", "HTMLSelectElement", "HTMLDialogElement", "Element", "Node", "MutationObserver", "Event", "CustomEvent", "MouseEvent", "StorageEvent", "localStorage", "getComputedStyle"]) {
   Object.defineProperty(globalThis, key, { configurable: true, value: dom.window[key] });
 }
 Object.defineProperty(globalThis, "navigator", { configurable: true, value: dom.window.navigator });
@@ -28,6 +28,7 @@ const { ProjectOverview } = await import("../src/components/project-overview.tsx
 const { ProjectNotebook } = await import("../src/components/project-notebook.tsx");
 const { ResearchCanvas } = await import("../src/components/research-canvas.tsx");
 const { ProjectWorkspace } = await import("../src/components/project-workspace.tsx");
+const { ResearchIntelligence } = await import("../src/components/research-intelligence.tsx");
 
 
 
@@ -39,7 +40,7 @@ const env={...process.env,KERNEL_DB_PATH:join(mkdtempSync(join(tmpdir(),'vh-ui-'
 const python=resolve('backend/.venv/Scripts/python.exe');
 const migrated=spawnSync(python,['-m','alembic','-c','backend/alembic.ini','upgrade','head'],{env});
 assert.equal(migrated.status,0,migrated.stderr.toString());
-const server=spawn(python,['-m','uvicorn','app.main:app','--app-dir','backend','--host','127.0.0.1','--port','8002'],{env,stdio:'ignore',windowsHide:true});
+const server=spawn(python,['backend/tests/ui_server.py'],{env,stdio:'ignore',windowsHide:true});
 after(()=>server.kill());
 const nativeFetch=globalThis.fetch;
 globalThis.fetch=(url,options)=>nativeFetch(String(url).replace('/api/kernel','http://127.0.0.1:8002'),options);
@@ -54,6 +55,7 @@ function Harness({ view }) {
   if (view === "home") return h(Home);
   const project = workspace.projects[0];
   if (!project) return null;
+  if (view === 'intelligence') return h('div',null,h(ResearchIntelligence,{project}),h(ProjectNotebook,{project}));
   if (view === "entry") return h(ProjectWorkspace, { id: project.id });
   if (view === "missing") return h(ProjectWorkspace, { id: "nonexistent" });
   if (view === "notebook-route") return h(ProjectWorkspace, { id: project.id, view: "notebook" });
@@ -133,5 +135,29 @@ test('explicit browser import preserves raw backup and stable IDs without overwr
   assert.equal(workspace.projects.find(v=>v.id===p.id).relationships.length,0);
   let trail;await act(async()=>{trail=await (await fetch('/api/kernel/v1/projects/'+p.id+'/events')).json();});
   assert.equal(trail.find(e=>e.event_type==='legacy_import').payload.original_record.unknownLegacyField,'retained');
+  await act(async()=>root.unmount());root=null;
+});
+
+test('Research Intelligence discusses selected objects, accepts and rejects proposals, and restores conversation',async()=>{
+  await render('intelligence',true);await until(()=>workspace.projects.length>0);
+  await click('Discuss this research object');await until(()=>document.querySelector('.intelligence-dialog[open]'));
+  const selected=input('Discuss research object').value;assert.ok(selected);
+  await fill(input('Research question'),'Suggest a useful question about this research.');
+  await click('Send');await until(()=>document.body.textContent.includes('Accept proposal'));
+  assert.match(document.querySelector('.intelligence-conversation').textContent,/test-only-model/);
+  const before=workspace.projects[0].objects.length;
+  await click('Accept proposal');await until(()=>workspace.projects[0].objects.length===before+1);
+  assert.ok(workspace.projects[0].objects.some(o=>o.title==='An accepted intelligence question'));
+  assert.ok(document.querySelector('.intelligence-proposal').textContent.includes('accepted'));
+  await until(()=>!document.querySelector('#intelligence-prompt').disabled);
+  await fill(input('Research question'),'Suggest another question.');await click('Send');await until(()=>[...document.querySelectorAll('button')].some(b=>b.textContent==='Reject proposal'));
+  await click('Reject proposal');await until(()=>document.querySelector('.intelligence-conversation').textContent.includes('rejected'));
+  assert.equal(workspace.projects[0].objects.length,before+1);
+  await click('Close Research Intelligence');assert.equal(document.querySelector('.intelligence-dialog'),null);
+  await render('intelligence',true);await until(()=>workspace.projects.length>0);
+  await click('Research Intelligence');await until(()=>document.querySelector('.intelligence-conversation')?.textContent.includes('rejected'));
+  assert.match(document.querySelector('.intelligence-conversation').textContent,/accepted/);
+  await click('Close Research Intelligence');
+  await render('canvas');assert.ok([...input('Existing entry to place').options].some(o=>o.textContent.includes('An accepted intelligence question')));
   await act(async()=>root.unmount());root=null;
 });

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { OPERATIONS, PROVIDERS, formatDate, type ModelAssignment, type Project, type ProjectSettings } from "@/lib/projects";
 import { useWorkspace } from "./workspace-provider";
+import { ProviderAvailability } from "./research-intelligence";
 
 export function ProjectOverview({ project }: { project: Project }) {
   const { update, sync } = useWorkspace();
@@ -28,7 +29,7 @@ export function ProjectOverview({ project }: { project: Project }) {
         <label htmlFor="overview-title">Project title</label><input id="overview-title" required maxLength={120} value={title} onChange={e => { setTitle(e.target.value); setDirty(true); }} />
         <label htmlFor="overview-description">Description <span className="muted">(optional)</span></label><textarea id="overview-description" rows={3} maxLength={500} value={description} onChange={e => { setDescription(e.target.value); setDirty(true); }} />
       </section>
-      <section className="overview-section"><h3>Research intelligence</h3><p className="field-help">Manual proposals are available. OpenAI, Anthropic, Gemini and Custom assignments are saved preferences; provider execution is not yet implemented. No model credentials are requested.</p>
+      <section className="overview-section"><h3>Research intelligence</h3><p className="field-help">Automatic uses the server provider priority. Explicit assignments use only that provider and its project model or server default. Configure credentials on the Python server.</p><ProviderAvailability/>
         <div className="model-assignments">{OPERATIONS.map((operation, index) => {
           const assignment = settings.modelAssignments[operation];
           function changeAssignment(patch: Partial<ModelAssignment>) { changeSettings({ modelAssignments: { ...settings.modelAssignments, [operation]: { ...assignment, ...patch } } }); }
