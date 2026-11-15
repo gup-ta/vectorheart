@@ -13,3 +13,9 @@ Do not expose this unauthenticated prototype publicly.
 Gemini and Anthropic routing, bounded scientific context, persistent conversations,
 and proposal review. Configure a server API key and account model in `backend/.env`,
 run Alembic upgrade head, and use the existing Python/Next.js startup commands.
+
+[Stage 3: Living Research Graph](docs/STAGE3.md) adds a versioned free-form journal,
+source-grounded graph previews, durable researcher corrections, spatial AI
+Accelerate proposals and bounded investigations that pause for human approval
+before running registered scientific tools. Apply migration `0003` and restart
+the existing Python service. The local startup commands remain the same.

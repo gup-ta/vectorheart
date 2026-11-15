@@ -36,6 +36,8 @@ def validated_proposal(s,pid,p,context):
     if p.action_type=='propose_relationship':
         if not p.source_object_id or not p.target_object_id or not p.relationship_type:raise ValueError('Choose two existing research objects and a supported relationship type.')
         if p.source_object_id==p.target_object_id:raise ValueError('A relationship needs two different research objects.')
+        from app.stage3 import relationship_blocked
+        if relationship_blocked(s,pid,p.source_object_id,p.target_object_id,p.relationship_type):raise ValueError('The researcher rejected this relationship. Explicit human reconnection is required.')
     elif p.source_object_id or p.relationship_type:raise ValueError('Relationship endpoints and type apply only to relationship proposals.')
     if p.action_type in ['propose_experiment','propose_revision'] and (not target or target.object_type!='hypothesis'):raise ValueError('Proposal requires a hypothesis target')
     payload=p.model_dump()
@@ -78,6 +80,9 @@ def read_conversation(pid:str,cid:str):
         return {**k.dump(c),'messages':[message_view(s,m) for m in s.scalars(select(ResearchMessage).where(ResearchMessage.conversation_id==cid).order_by(ResearchMessage.created_at,ResearchMessage.id))]}
 @router.post('/v1/projects/{pid}/intelligence/conversations/{cid}/turns')
 def turn(pid:str,cid:str,data:TurnRequest):
+    return perform_turn(pid,cid,data)
+
+def perform_turn(pid,cid,data,context_override=None,instructions='',run_provenance=None):
     k=services();digest=hashlib.sha256(data.model_dump_json().encode()).hexdigest()
     with k.transaction() as s:
         c=conversation(s,pid,cid)
@@ -87,7 +92,7 @@ def turn(pid:str,cid:str,data:TurnRequest):
             if previous.request_hash!=digest:raise k.Problem('Idempotency key was used for a different request')
             return message_view(s,previous)
         project=k.get(s,Project,pid)
-        context,history=ResearchContextBuilder().build(s,pid,data.selected_object_id,cid,data.message)
+        context,history=context_override if context_override is not None else ResearchContextBuilder().build(s,pid,data.selected_object_id,cid,data.message)
         # Serialize one turn at a time per conversation, without holding a DB transaction over inference.
         if s.scalar(select(ResearchMessage).where(ResearchMessage.conversation_id==cid,ResearchMessage.status=='running')):raise k.Problem('A turn is already running. Refresh its state before sending another.')
         msg=ResearchMessage(id=uid(),conversation_id=cid,role='assistant',content='',mode=data.mode,status='running',request_key=data.idempotency_key,request_hash=digest,context={'object_revisions':[{key:o[key] for key in ['id','revision_id','revision_number']} for o in context['objects']],'truncated':context['truncated'],'omitted_objects':context['omitted_objects']})
@@ -101,9 +106,10 @@ def turn(pid:str,cid:str,data:TurnRequest):
         if not acquired:raise ProviderError('busy','Local inference capacity is busy. Retry shortly with a new request key.')
         tokens=max(256,min(8000,int(os.getenv('VECTORHEART_MAX_OUTPUT_TOKENS','3000'))));timeout=max(5,min(40,float(os.getenv('VECTORHEART_MODEL_TIMEOUT','30'))))
         provenance.update(max_output_tokens=tokens,timeout_seconds=timeout)
-        request=ModelRequest(model,SYSTEM_PROMPT+'\n'+proposal_contract()+'\nCurrent research mode: '+data.mode,data.message,context,history,tokens,timeout)
+        provenance.update(run_provenance or {})
+        request=ModelRequest(model,SYSTEM_PROMPT+'\n'+proposal_contract()+'\nCurrent research mode: '+data.mode+'\n'+instructions,data.message,context,history,tokens,timeout,correction_attempt=bool(run_provenance))
         result=provider.generate_structured_response(request)
-        result=correct_proposals(provider,request,result)
+        if not run_provenance:result=correct_proposals(provider,request,result)
         response=ResearchIntelligenceResponse.model_validate(result.output.model_dump())
         if not set(response.context_references).issubset({o['id'] for o in context['objects']}):raise ProviderError('invalid_references','The response cited objects outside the supplied context. No proposals were saved; retry the question.')
         with k.transaction() as s:
@@ -112,7 +118,15 @@ def turn(pid:str,cid:str,data:TurnRequest):
             transport_rejected={item['index'] for item in result.rejected_proposals}
             source_indices=result.proposal_indices if result.proposal_indices is not None else [i for i in range(len(response.proposals)+len(transport_rejected)) if i not in transport_rejected]
             for i,p in zip(source_indices,response.proposals):
-                try:payload=validated_proposal(s,pid,p,context)
+                try:
+                    payload=validated_proposal(s,pid,p,context)
+                    if run_provenance:
+                        from app.stage3 import normalized
+                        typ={'create_question':'question','create_hypothesis':'hypothesis','create_observation':'observation'}.get(p.action_type)
+                        if typ and any(o.object_type==typ and normalized(o.body)==normalized(p.content) for o in s.scalars(select(Object).where(Object.project_id==pid,Object.deleted==False))):
+                            raise ValueError('This scientific statement already exists in the project; a duplicate proposal was withheld.')
+                        if p.action_type=='propose_relationship' and s.scalar(select(Relationship).where(Relationship.project_id==pid,Relationship.source_object_id==p.source_object_id,Relationship.target_object_id==p.target_object_id,Relationship.relationship_type==p.relationship_type)):
+                            raise ValueError('This directed relationship already exists; no duplicate proposal is needed.')
                 except (ValueError,k.Problem) as exc:rejected.append({'index':i,'reason':str(exc) if isinstance(exc,ValueError) else exc.message});continue
                 s.add(ResearchProposal(project_id=pid,source_message_id=mid,action_type=p.action_type,payload=payload,source_references=p.referenced_object_ids,provenance=msg.provenance))
             msg.response_details={'uncertainties':response.uncertainties,'limitations':response.limitations,'context_references':response.context_references,'rejected_proposals':rejected}
@@ -135,6 +149,10 @@ def accept(pid:str,proposal_id:str):
         raw=ScientificProposal.model_validate({key:value for key,value in payload.items() if key in ScientificProposal.model_fields})
         source=s.get(ResearchMessage,p.source_message_id)
         context={'objects':source.context['object_revisions']}
+        referenced=set(raw.referenced_object_ids+raw.evidence_ids+([raw.target_object_id] if raw.target_object_id else [])+([raw.source_object_id] if raw.source_object_id else []))
+        for ref in context['objects']:
+            if ref['id'] in referenced and k.get(s,Object,ref['id'],pid).current_revision!=ref['revision_number']:
+                raise k.Problem('Referenced research changed since generation. Request a fresh proposal against its current revision.')
         if p.action_type=='propose_revision':
             target=k.get(s,Object,raw.target_object_id,pid)
             if target.current_revision!=payload['base_revision']:raise k.Problem('Hypothesis changed since this proposal. Request a new proposal against its current revision.')
@@ -162,7 +180,7 @@ def accept(pid:str,proposal_id:str):
             for oid in raw.referenced_object_ids:k.relationship(s,pid,{'sourceId':obj.id,'targetId':oid,'type':'derived_from'})
             p.result_ids={'object_id':obj.id}
         elif p.action_type=='propose_experiment':
-            op=k.propose(s,pid,k.Proposal(action_type='destroy.test_hypothesis',target_object_ids=[raw.target_object_id],proposal_payload={'adapter_id':ADAPTER,'parameters':raw.adapter_parameters.model_dump(),'rationale':raw.rationale}))
+            op=k.get(s,k.Operation,payload['prepared_operation_id'],pid) if payload.get('prepared_operation_id') else k.propose(s,pid,k.Proposal(action_type='destroy.test_hypothesis',target_object_ids=[raw.target_object_id],proposal_payload={'adapter_id':ADAPTER,'parameters':raw.adapter_parameters.model_dump(),'rationale':raw.rationale}))
             op.proposed_by='model';p.result_ids={'operation_id':op.id}
         else:
             op=k.propose(s,pid,k.Proposal(action_type='modify.propose_hypothesis_revision',target_object_ids=[raw.target_object_id],proposal_payload={'original_statement':payload['original_statement'],'proposed_statement':raw.content,'evidence_ids':raw.evidence_ids,'assumptions_changed':raw.assumptions,'scope':'\n'.join(raw.limitations),'remaining_uncertainties':raw.limitations,'rationale':raw.rationale}))

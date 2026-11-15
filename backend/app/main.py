@@ -116,7 +116,7 @@ class ObjectPatch(Contract):
     def model_post_init(self,context):
         if any(getattr(self,key) is None for key in self.model_fields_set):raise ValueError('Content fields cannot be null')
 def project_view(s,p):
-    return {'id':p.id,'title':p.title,'description':p.description,'createdAt':p.created_at,'updatedAt':p.updated_at,'settings':p.settings,'question':p.question,'lastVisitedView':p.last_visited_view,'objects':[object_view(o) for o in rows(s,Object,p.id) if not o.deleted], 'placements':[{'objectId':v.object_id,'position':{'x':v.x,'y':v.y}} for v in rows(s,Placement,p.id)],'relationships':[{'id':r.id,'projectId':p.id,'sourceId':r.source_object_id,'targetId':r.target_object_id,'type':r.relationship_type} for r in rows(s,Relationship,p.id)]}
+    return {'id':p.id,'title':p.title,'description':p.description,'createdAt':p.created_at,'updatedAt':p.updated_at,'settings':p.settings,'question':p.question,'lastVisitedView':p.last_visited_view,'objects':[object_view(o) for o in rows(s,Object,p.id) if not o.deleted], 'placements':[{'objectId':v.object_id,'position':{'x':v.x,'y':v.y}} for v in rows(s,Placement,p.id)],'relationships':[{'id':r.id,'projectId':p.id,'sourceId':r.source_object_id,'targetId':r.target_object_id,'type':r.relationship_type,'details':r.details} for r in rows(s,Relationship,p.id)]}
 def object_view(o): return {'id':o.id,'projectId':o.project_id,'type':o.object_type.capitalize(),'title':o.title,'body':o.body,'createdAt':o.created_at,'updatedAt':o.updated_at,'metadata':o.scientific_metadata,'currentRevision':o.current_revision,'provenanceType':o.provenance_type}
 def add_project(s,p):
     if not p.title.strip(): raise Problem('Title is required',422)
@@ -366,7 +366,9 @@ def execute_locked(pid,oid):
             event(s,pid,'operation_failed',[target_id],{'error':str(exc)},oid,'kernel')
         raise Problem('Execution failed: '+str(exc),422)
 @app.get('/v1/adapters')
-def adapters():return [{'id':ADAPTER,'version':'1','parameter_schema':Parameters.model_json_schema(),'limitations':LIMITATIONS}]
+def adapters():
+    from app.science import NumericalResult
+    return [{'id':ADAPTER,'version':'1','parameter_schema':Parameters.model_json_schema(),'output_schema':NumericalResult.model_json_schema(),'domain':'Registered synthetic A/B causal models only; requires causal_demo target metadata','approval_required':True,'execution_limits':{'timeout_seconds':15,'sample_count_max':5000,'concurrency':1},'limitations':LIMITATIONS}]
 @app.post('/v1/projects/{pid}/operations/{oid}/retry')
 def retry(pid:str,oid:str):
     with transaction() as s:
@@ -404,3 +406,6 @@ def demo(pid:str):
 
 from app.intelligence import router as intelligence_router
 app.include_router(intelligence_router)
+
+from app.stage3 import router as stage3_router
+app.include_router(stage3_router)

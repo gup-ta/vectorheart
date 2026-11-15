@@ -7,6 +7,11 @@ type Operation = {id:string;action_type:string;status:string;target_object_ids:s
 type Trail = {id:string;event_type:string;timestamp:string;project_sequence_number:number;affected_object_ids:string[]};
 type Run = {id:string;status:string;measured_outputs:Record<string,unknown>;validation_results:Record<string,boolean>;actual_parameters:Record<string,unknown>;environment_metadata:Record<string,unknown>;errors:string[];artifact_references:unknown[]};
 type Evidence = {id:string;target_hypothesis_ids:string[]};
+export function RecordedExperiment({projectId,runId}:{projectId:string;runId:string}){
+  const [run,setRun]=useState<Run|null>(null),[error,setError]=useState("");
+  useEffect(()=>{let active=true;void kernel<Run>(`projects/${projectId}/runs/${runId}`).then(value=>{if(active)setRun(value);}).catch(e=>{if(active)setError(String(e));});return()=>{active=false;};},[projectId,runId]);
+  return <section aria-label="Recorded experiment results">{error&&<p role="alert">{error}</p>}{run&&<><h3>Recorded simulation · {run.status}</h3><p>Measured mean: {String(run.measured_outputs.mean??"Unavailable")} · approximate 95% mean interval: {JSON.stringify(run.measured_outputs.confidence_interval)}</p><p>Compatible predicted means: {JSON.stringify(run.measured_outputs.compatible)}</p><p>Simulation only; this does not establish causality in a real population.</p><details><summary>Parameters, validation, environment and artifacts</summary><pre>{JSON.stringify({parameters:run.actual_parameters,validation:run.validation_results,environment:run.environment_metadata,artifacts:run.artifact_references,errors:run.errors},null,2)}</pre></details></>}</section>;
+}
 export function ResearchActions({project}:{project:Project}) {
   const {sync}=useWorkspace();
   const [open,setOpen]=useState(false),[target,setTarget]=useState(""),[statement,setStatement]=useState(""),[assumptions,setAssumptions]=useState(""),[scope,setScope]=useState("Only the configured synthetic causal models and intervention."),[world,setWorld]=useState("A"),[x,setX]=useState("2"),[count,setCount]=useState("1000"),[seed,setSeed]=useState("42"),[error,setError]=useState(""),[busy,setBusy]=useState(false);

@@ -43,6 +43,9 @@ class ResearchContextBuilder:
             append('evidence',{'object_id':e.id,'source_type':e.source_type,'verification_status':e.verification_status,'target_hypothesis_ids':[i for i in e.target_hypothesis_ids if i in included],'measured_results':{k:v for k,v in e.measured_results.items() if k in ['mean','std','se','confidence_interval','predictions','compatible']},'actual_parameters':run.actual_parameters,'validation_results':run.validation_results,'limitations':e.limitations})
         for e in s.scalars(select(Event).where(Event.project_id==pid).order_by(Event.project_sequence_number.desc()).limit(8)):
             append('events',{'sequence':e.project_sequence_number,'event_type':e.event_type,'object_ids':[i for i in e.affected_object_ids if i in included]})
+        from app.stage3 import corrections
+        decisions=corrections(s,pid)
+        if decisions:append('events',{'researcher_corrections':decisions,'instruction':'These are durable human interpretation constraints, not verified evidence.'})
         messages=s.scalars(select(ResearchMessage).where(ResearchMessage.conversation_id==conversation_id,ResearchMessage.status=='completed').order_by(ResearchMessage.created_at.desc(),ResearchMessage.id).limit(8)).all()
         history=[{'role':m.role,'content':m.content[:1500]} for m in reversed(messages)]
         # Credentials are never configuration context. Redact known keys if pasted into source text.

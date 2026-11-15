@@ -12,13 +12,14 @@ export type ProjectSettings = {
   computeBudget: { amount: number; unit: "USD" } | null;
 };
 export type ResearchObject = {
+  provenanceType?: string;
   metadata?: Record<string, unknown>;
   currentRevision?: number;
   id: string; projectId: string; type: ObjectType; title: string; body: string;
   createdAt: string; updatedAt: string;
 };
 export type CanvasPlacement = { objectId: string; position: { x: number; y: number } };
-export type ResearchRelationship = { id: string; projectId: string; sourceId: string; targetId: string; type?: string };
+export type ResearchRelationship = { id: string; projectId: string; sourceId: string; targetId: string; type?: string; details?: Record<string, unknown> };
 export type Project = {
   id: string; title: string; description: string; question: string;
   createdAt: string; updatedAt: string; settings: ProjectSettings;
@@ -110,7 +111,7 @@ export type Mutation =
   | { kind: "place"; projectId: string; placement: CanvasPlacement }
   | { kind: "unplace"; projectId: string; objectId: string }
   | { kind: "connect"; projectId: string; relationship: ResearchRelationship }
-  | { kind: "disconnect"; projectId: string; relationshipId: string };
+  | { kind: "disconnect"; projectId: string; relationshipId: string; rationale?: string; correctionId?: string };
 
 function reduceMutation(projects: Project[], mutation: Mutation, now: string): Project[] {
   if (mutation.kind === "create") return projects.some(p => p.id === mutation.project.id) ? projects : [mutation.project, ...projects];

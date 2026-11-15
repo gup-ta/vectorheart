@@ -4,8 +4,16 @@ import { useLayoutEffect, useRef, useState } from "react";
 import { Eye, FileText, HelpCircle, Lightbulb, Trash2 } from "lucide-react";
 import { OBJECT_TYPES, formatDate, type ResearchObject, type ObjectType } from "@/lib/projects";
 import { useWorkspace } from "./workspace-provider";
+import { kernel } from "@/lib/kernel-repository";
+import { GraphCorrectionEditor } from "./graph-correction-editor";
 
 export const TYPE_ICONS = { Note: FileText, Question: HelpCircle, Hypothesis: Lightbulb, Observation: Eye, Prediction: Lightbulb, Experiment: FileText, Evidence: Eye, Concept: HelpCircle };
+
+function ObjectRevisionHistory({ object }: { object: ResearchObject }) {
+  const [history, setHistory] = useState<{ revision_id: string; revision_number: number; title_snapshot: string; body_snapshot: string; reason: string }[]>([]);
+  const [error, setError] = useState("");
+  return <details className="research-trail" onToggle={e => { if(e.currentTarget.open) void kernel<typeof history>(`projects/${object.projectId}/objects/${object.id}/revisions`).then(setHistory).catch(e=>setError(String(e))); }}><summary>Object revisions · current {object.currentRevision ?? 1}</summary>{error && <p role="alert">{error}</p>}{history.map(r=><details key={r.revision_id}><summary>Revision {r.revision_number} · {r.reason}</summary><h4>{r.title_snapshot}</h4><p className="preserve-writing">{r.body_snapshot}</p></details>)}</details>;
+}
 
 // Keep focused text local so a cross-tab refresh cannot move the caret or replace a draft.
 export function WritingField({ value, onChange, label, placeholder, className = "", multiline = false, autoFocus = false, readOnly = false }: {
@@ -29,6 +37,7 @@ export function WritingField({ value, onChange, label, placeholder, className = 
 
 export function ResearchEntry({ object, autoFocus = false, onDelete }: { object: ResearchObject; autoFocus?: boolean; onDelete?: () => void }) {
   const { mutate } = useWorkspace();
+  if(object.metadata?.origin === "model_interpretation") return <article id={`research-${object.id}`} className="research-entry" aria-label={`Interpretation: ${object.title}`}><p className="eyebrow">Source-grounded model interpretation</p><GraphCorrectionEditor key={object.id} object={object} done={()=>{}} /><ObjectRevisionHistory object={object} /></article>;
   const Icon = TYPE_ICONS[object.type];
   const recorded=['Experiment','Evidence'].includes(object.type);
   const edit = (patch: Partial<Pick<ResearchObject, "title" | "body" | "type">>) => mutate({ kind: "edit-object", projectId: object.projectId, objectId: object.id, patch });
@@ -40,6 +49,7 @@ export function ResearchEntry({ object, autoFocus = false, onDelete }: { object:
     <WritingField readOnly={recorded} label="Entry title" className="entry-title" value={object.title} onChange={title => edit({ title })} placeholder="Untitled" autoFocus={autoFocus} />
     <WritingField readOnly={recorded} label="Entry body" className="entry-body" value={object.body} onChange={body => edit({ body })} placeholder="Begin with a question, an observation, or an idea." multiline />
     {object.metadata&&<details className="research-trail"><summary>Scientific metadata and provenance</summary><pre>{JSON.stringify(object.metadata,null,2)}</pre></details>}
+    <ObjectRevisionHistory object={object} />
     <p className="entry-date">Created <time dateTime={object.createdAt}>{formatDate(object.createdAt)}</time><span> · </span>Updated <time dateTime={object.updatedAt}>{formatDate(object.updatedAt)}</time></p>
   </article>;
 }

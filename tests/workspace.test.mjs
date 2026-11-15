@@ -161,3 +161,52 @@ test('Research Intelligence discusses selected objects, accepts and rejects prop
   await render('canvas');assert.ok([...input('Existing entry to place').options].some(o=>o.textContent.includes('An accepted intelligence question')));
   await act(async()=>root.unmount());root=null;
 });
+
+test('journal autosaves revisions, generates a reviewable graph and accepts spatial Accelerate proposals',async()=>{
+  await render('notebook',true);await until(()=>workspace.projects.length>0);
+  await click('New journal entry');await until(()=>document.querySelector('[aria-label="Journal writing"]'));
+  await fill(input('Journal title'),'A free-form research day');
+  await fill(input('Journal writing'),'I wonder whether outdoor light and near-work explain the association. This is a question, not a clinical finding.');
+  // Exercise the actual debounce, then the navigation/action save barrier.
+  await act(async()=>{await new Promise(r=>setTimeout(r,1800));});
+  await flush();
+  const journal=workspace.projects[0].objects.find(o=>o.title==='A free-form research day');
+  assert.equal(journal.metadata.journal_entry,true);assert.ok(journal.currentRevision>=2);
+  await click('View saved revisions');await until(()=>document.body.textContent.includes('Revision 1'));
+  await render('canvas');
+  await click('Generate Research Graph');await until(()=>document.body.textContent.includes('Accept graph interpretation'));
+  assert.match(document.body.textContent,/review/);
+  assert.ok(!workspace.projects[0].objects.some(o=>o.title==='A journal-grounded hypothesis'));
+  await click('Accept graph interpretation');await until(()=>workspace.projects[0].objects.some(o=>o.title==='A journal-grounded hypothesis'));
+  const interpreted=workspace.projects[0].objects.find(o=>o.title==='A journal-grounded hypothesis');
+  assert.equal(interpreted.metadata.origin,'model_interpretation');
+  assert.ok(workspace.projects[0].placements.some(p=>p.objectId===interpreted.id));
+  await click('AI Accelerate');await until(()=>document.body.textContent.includes('Accept A novel Accelerate hypothesis'));
+  const before=workspace.projects[0].objects.length;
+  await click('Accept A novel Accelerate hypothesis');await until(()=>workspace.projects[0].objects.length===before+1);
+  assert.ok(workspace.projects[0].objects.some(o=>o.metadata?.origin==='ai_accelerate'));
+  await render('notebook',true);await until(()=>document.querySelector('[aria-label="Journal writing"]'));
+  assert.match(input('Journal writing').value,/outdoor light/);
+  assert.ok(workspace.projects[0].objects.some(o=>o.id===interpreted.id));
+  await act(async()=>root.unmount());root=null;
+});
+
+test('Canvas correction mutations are immediate, buffered, auditable and content-preserving',async()=>{
+  await render('notebook',true);await until(()=>workspace.projects.length>0);
+  const {newObject}=await import('../src/lib/projects.ts');
+  const pid=workspace.projects[0].id,a=newObject(pid),b=newObject(pid);
+  await act(async()=>{workspace.mutate({kind:'add-object',projectId:pid,object:{...a,title:'Correction source'}});workspace.mutate({kind:'add-object',projectId:pid,object:{...b,title:'Correction target'}});});
+  await flush();const id=crypto.randomUUID();
+  await act(async()=>{workspace.mutate({kind:'connect',projectId:pid,relationship:{id,projectId:pid,sourceId:a.id,targetId:b.id,type:'related_to',details:{origin:'researcher_correction',rationale:'A researcher-reported connection.'}}});});
+  assert.ok(workspace.projects[0].relationships.some(r=>r.id===id));
+  let stored;await act(async()=>{stored=await (await fetch(`/api/kernel/v1/projects/${pid}/relationships`)).json();});
+  assert.ok(!stored.some(r=>r.id===id));await flush();
+  await act(async()=>{stored=await (await fetch(`/api/kernel/v1/projects/${pid}/relationships`)).json();});
+  assert.ok(stored.some(r=>r.id===id));
+  await act(async()=>{workspace.mutate({kind:'disconnect',projectId:pid,relationshipId:id,correctionId:crypto.randomUUID(),rationale:'Only correlation was reported.'});});
+  assert.ok(!workspace.projects[0].relationships.some(r=>r.id===id));await flush();
+  let corrections;await act(async()=>{corrections=await (await fetch(`/api/kernel/v1/projects/${pid}/graph/corrections`)).json();});
+  assert.ok(corrections.some(c=>c.kind==='remove_relationship'&&c.rationale==='Only correlation was reported.'));
+  assert.ok(workspace.projects[0].objects.some(o=>o.id===a.id)&&workspace.projects[0].objects.some(o=>o.id===b.id));
+  await act(async()=>root.unmount());root=null;
+});

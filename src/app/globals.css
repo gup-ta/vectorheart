@@ -268,3 +268,49 @@ html[data-density="compact"] .project-row { padding-top: 16px; padding-bottom: 1
   .question-input { font-size: 21px; }
   .project-dialog { padding: 22px; }
 }
+/* Living journal and graph: content first, provisional science visibly separate. */
+.journal-entry { padding: 2rem 0 2.6rem; border-bottom: 1px solid var(--border, #ded6cb); }
+.journal-dateline { display: flex; justify-content: space-between; gap: 1rem; color: #756a5e; font-size: .75rem; margin-bottom: .9rem; }
+.journal-writing { min-height: 180px; line-height: 1.85; }
+.journal-details, .structured-research { margin-top: 1.5rem; }
+.journal-details summary, .structured-research > summary, .graph-run-summary summary, .investigate-launch summary { cursor: pointer; color: #6e5947; font-size: .82rem; padding: .65rem 0; }
+.journal-details label, .graph-correction-editor label, .graph-inspector label, .investigate-launch label { display: grid; gap: .45rem; font-size: .8rem; margin: .9rem 0; }
+.journal-details input, .journal-details select, .graph-correction-editor input, .graph-correction-editor textarea, .graph-correction-editor select, .graph-inspector textarea, .investigate-launch textarea, .investigate-launch select { width: 100%; padding: .6rem; border: 1px solid #ded6cb; border-radius: 4px; background: transparent; color: #302a24; font: inherit; }
+.preserve-writing { white-space: pre-wrap; overflow-wrap: anywhere; line-height: 1.75; }
+.graph-intelligence { padding: .8rem 1.5rem; position: relative; border-bottom: 1px solid #ded6cb; }
+.graph-primary-actions { display: flex; align-items: center; flex-wrap: wrap; gap: .8rem 2rem; }
+.graph-primary-actions small { display: block; font-size: .65rem; color: #756a5e; padding: 0 .25rem; }
+.graph-generate { color: #a2674b; }
+.accelerate-action { color: #4e6b53; }
+.investigate-launch { margin-left: auto; max-width: 420px; }
+.investigate-launch p { font-size: .8rem; color: #756a5e; }
+.graph-run-state { display: flex; gap: .8rem; align-items: center; flex-wrap: wrap; margin: .9rem 0 .25rem; font-size: .75rem; color: #756a5e; }
+.graph-run-state select { background: transparent; color: #302a24; border: 0; max-width: 100%; }
+.graph-run-summary { font-size: .85rem; max-width: 920px; }
+.graph-run-summary ol { padding-left: 1.2rem; }
+.graph-run-summary li { margin: .5rem 0; overflow-wrap: anywhere; }
+.graph-inspector { position: fixed; z-index: 35; right: 1rem; top: 6rem; bottom: 1rem; width: min(430px, calc(100vw - 2rem)); overflow-y: auto; background: #faf8f4; border: 1px solid #ded6cb; padding: 1.7rem; border-radius: 5px; }
+.inspector-close { float: right; }
+.graph-inspector h3 { font-size: 1.35rem; margin: 1rem 0; }
+.graph-inspector h4 { margin: 1rem 0 .5rem; text-transform: capitalize; font-size: .8rem; }
+.graph-inspector p, .graph-inspector li { line-height: 1.65; font-size: .88rem; }
+.graph-inspector ul { padding-left: 1.2rem; }
+.graph-inspector blockquote, .object-dialog blockquote { border-left: 2px solid #ded6cb; padding-left: 1rem; margin: 1rem 0; }
+.proposal-sources { display: flex; flex-wrap: wrap; gap: .6rem; margin: .6rem 0; font-size: .75rem; text-decoration: underline; }
+.investigation-approval { padding: 1rem 0; border-top: 1px solid #ded6cb; margin-top: 1rem; max-width: 780px; font-size: .85rem; }
+.investigation-approval h3 { font-size: 1.1rem; margin-bottom: .6rem; }
+.graph-intelligence pre, .graph-edge-inspection pre { white-space: pre-wrap; overflow-wrap: anywhere; font-size: .75rem; margin: .7rem 0; }
+.research-node.node-novel { border-color: #829985; background: #f1f5ed; }
+.research-node.node-provisional { border-style: dashed; }
+.research-node small { display: block; color: #716656; font-size: .66rem; margin: .45rem 0; }
+.graph-edge-inspection { padding: 1rem 1.5rem; font-size: .85rem; border-top: 1px solid #ded6cb; }
+.graph-correction-editor h3 { margin-top: 1rem; }
+.graph-correction-editor p { font-size: .85rem; color: #756a5e; }
+.journal-entry, .graph-inspector, .graph-intelligence, .structured-research { min-width: 0; overflow-wrap: anywhere; }
+@media (max-width: 640px) {
+  .graph-intelligence { padding: .75rem; }
+  .graph-primary-actions { gap: .5rem 1rem; }
+  .investigate-launch { margin-left: 0; width: 100%; }
+  .journal-entry { padding-top: 1.5rem; }
+  .graph-inspector { top: 1rem; }
+}

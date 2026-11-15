@@ -2,22 +2,27 @@
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { applyMutation, localProjectRepository, LEGACY_PROJECTS_KEY, PROJECTS_KEY, newProject, type Mutation, type Project, type ProjectPatch } from "@/lib/projects";
 import { kernel, kernelRepository } from "@/lib/kernel-repository";
-type Workspace = { projects: Project[]; ready: boolean; error: string; pending: boolean; create: (title: string, description: string) => string | null; update: (id: string, patch: ProjectPatch) => boolean; remove: (id: string) => boolean; mutate: (mutation: Mutation, immediate?: boolean) => boolean; flush: () => boolean; sync: () => Promise<void> };
+type DraftSaver = { save: () => Promise<void>; dirty: () => boolean };
+type Workspace = { registerSaver: (id: string, saver: DraftSaver) => () => void; draftChanged: () => void; projects: Project[]; ready: boolean; error: string; pending: boolean; create: (title: string, description: string) => string | null; update: (id: string, patch: ProjectPatch) => boolean; remove: (id: string) => boolean; mutate: (mutation: Mutation, immediate?: boolean) => boolean; flush: () => boolean; sync: () => Promise<void> };
 const Context = createContext<Workspace | null>(null);
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [projects,setProjects]=useState<Project[]>([]), [ready,setReady]=useState(false), [error,setError]=useState(""), [pending,setPending]=useState(false), [migration,setMigration]=useState(false);
+  const savers=useRef(new Map<string,DraftSaver>());
+  const registerSaver=useCallback((id:string,saver:DraftSaver)=>{savers.current.set(id,saver);return()=>{savers.current.delete(id);};},[]);
+  const draftChanged=useCallback(()=>setPending(true),[]);
   const current=useRef<Project[]>([]), queue=useRef<Mutation[]>([]), saving=useRef<Promise<void>|null>(null), active=useRef(false);
   const sync=useCallback(async () => {
     if (saving.current) return saving.current;
     saving.current=(async()=>{
+      for(const saver of savers.current.values()) await saver.save();
       while(queue.current.length) { await kernelRepository.apply(queue.current[0]); queue.current.shift(); }
       const loaded=await kernelRepository.load();
       current.current=queue.current.reduce((state,m)=>applyMutation(state,m),loaded);
-      setProjects(current.current);setPending(queue.current.length>0);setError("");
+      setProjects(current.current);setPending(queue.current.length>0 || [...savers.current.values()].some(s=>s.dirty()));setError("");
     })();
-    try { await saving.current; } finally {saving.current=null;}
+    try { await saving.current; } catch(e) {setError(String(e));throw e;} finally {saving.current=null;}
   },[]);
-  const flush=useCallback(()=>{ if(!queue.current.length)return true; void sync().catch(e=>setError(String(e)));return false; },[sync]);
+  const flush=useCallback(()=>{ if(!queue.current.length && ![...savers.current.values()].some(s=>s.dirty()))return true; void sync().catch(e=>setError(String(e)));return false; },[sync]);
   const load=useCallback(async()=>{
     try {
       const stored=localStorage.getItem(PROJECTS_KEY) ?? localStorage.getItem(LEGACY_PROJECTS_KEY);
@@ -27,7 +32,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   },[sync]);
   useEffect(()=>{
     void Promise.resolve().then(load); const interval=setInterval(()=>{if(active.current)flush();},10000);
-    const hide=()=>{if(document.visibilityState==='hidden')flush();}; const leave=(e:BeforeUnloadEvent)=>{if(queue.current.length){flush();e.preventDefault();e.returnValue='';}};
+    const hide=()=>{if(document.visibilityState==='hidden')flush();}; const leave=(e:BeforeUnloadEvent)=>{if(queue.current.length || [...savers.current.values()].some(s=>s.dirty())){flush();e.preventDefault();e.returnValue='';}};
     window.addEventListener('pagehide',flush);window.addEventListener('beforeunload',leave);document.addEventListener('visibilitychange',hide);
     return()=>{clearInterval(interval);flush();window.removeEventListener('pagehide',flush);window.removeEventListener('beforeunload',leave);document.removeEventListener('visibilitychange',hide);};
   },[load,flush]);
@@ -42,7 +47,7 @@ export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   },[flush]);
   function backup(){const blob=new Blob([JSON.stringify({v1:localStorage.getItem(LEGACY_PROJECTS_KEY),v2:localStorage.getItem(PROJECTS_KEY)},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='vectorheart-browser-backup.json';a.click();URL.revokeObjectURL(url);}
   async function importData(){try {const raw=localStorage.getItem(PROJECTS_KEY);const parsed=raw?JSON.parse(raw):null;if(parsed&&parsed.version!==2)throw new Error('Unsupported browser schema; export the backup for recovery.');const projects=parsed?parsed.projects:localProjectRepository.load();const result=await kernel<{warnings:string[]}>("import","POST",{projects,original_backup:{v1:localStorage.getItem(LEGACY_PROJECTS_KEY),v2:raw}});await sync();localStorage.setItem('vectorheart.kernel.imported.v1','yes');setMigration(false);active.current=true;setError(result.warnings.join('; '));}catch(e){setError(String(e));}}
-  return <Context.Provider value={{projects,ready,error,pending,sync,flush,mutate,create:(title,description)=>{const p=newProject(title,description);return mutate({kind:'create',project:p},true)?p.id:null;},update:(id,patch)=>mutate({kind:'project',projectId:id,patch}),remove:id=>mutate({kind:'remove',projectId:id},true)}}>
+  return <Context.Provider value={{projects,ready,error,pending,sync,flush,mutate,registerSaver,draftChanged,create:(title,description)=>{const p=newProject(title,description);return mutate({kind:'create',project:p},true)?p.id:null;},update:(id,patch)=>mutate({kind:'project',projectId:id,patch}),remove:id=>mutate({kind:'remove',projectId:id},true)}}>
     {error&&<div className="storage-error" role="alert">{error} <button className="text-button" onClick={()=>void load()}>Retry connection</button><button className="text-button" onClick={()=>void sync().catch(e=>setError(String(e)))}>Retry saving</button></div>}
     {migration?<main className="project-content"><h1>Bring your research into the kernel.</h1><p className="subtitle">Export a backup, then import your browser projects. Original records stay intact. Existing kernel projects are preserved.</p><button className="text-button" onClick={backup}>Export JSON backup</button><button className="primary-button" onClick={()=>void importData()}>Import and open workspace</button></main>:children}
   </Context.Provider>;

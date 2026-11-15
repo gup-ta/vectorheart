@@ -123,7 +123,7 @@ class GeminiProvider:
         stage='request_validation'
         try:
             with genai.Client(api_key=os.environ['GEMINI_API_KEY'],http_options=types.HttpOptions(timeout=int(r.timeout*1000),retry_options=types.HttpRetryOptions(attempts=1))) as client:
-                config=types.GenerateContentConfig(system_instruction=r.system,response_mime_type='application/json',response_schema=GeminiScientificResponse,max_output_tokens=r.max_output_tokens)
+                config=types.GenerateContentConfig(system_instruction=r.system,response_mime_type='application/json',response_schema=GeminiScientificResponse if r.schema is ResearchIntelligenceResponse else r.schema,max_output_tokens=r.max_output_tokens)
                 stage='provider_generation'
                 response=client.models.generate_content(model=r.model,contents=r.payload(),config=config)
                 stage='response_parsing'
@@ -131,7 +131,10 @@ class GeminiProvider:
                 # Distinguish malformed JSON from canonical validation failures.
                 text=response.text or '';json.loads(text)
                 stage='internal_schema_validation'
-                output,rejected=normalize_gemini_response(text,r.schema)
+                if r.schema is ResearchIntelligenceResponse:
+                    output,rejected=normalize_gemini_response(text,r.schema)
+                else:
+                    output,rejected=r.schema.model_validate_json(text),[]
                 return ModelResponse(output,response.usage_metadata.model_dump(mode='json') if response.usage_metadata else None,rejected)
         except Exception as exc:raise gemini_error(exc,r.model,stage) from None
 PROVIDERS={'OpenAI':(OpenAIProvider,'OPENAI'),'Anthropic':(AnthropicProvider,'ANTHROPIC'),'Google Gemini':(GeminiProvider,'GEMINI')}

@@ -5,37 +5,50 @@ import { Background, BackgroundVariant, Controls, Handle, MarkerType, Position, 
 import { MousePointer2, Minus, Pencil, Plus, X } from "lucide-react";
 import { newObject, OBJECT_TYPES, type ObjectType, type Project, type ResearchObject } from "@/lib/projects";
 import { useWorkspace } from "./workspace-provider";
+import { GraphIntelligence, type GraphOverlay } from "./graph-intelligence";
+import { JournalEntry } from "./research-journal";
+import { GraphCorrectionEditor } from "./graph-correction-editor";
+import { RecordedExperiment } from "./research-actions";
 import { ResearchEntry, TYPE_ICONS } from "./research-entry";
 
 type ToolMode = "select" | "connect" | "disconnect";
-type ResearchNode = Node<{ object: ResearchObject; edit: (id: string) => void; mode: ToolMode; endpoint: boolean }, "research">;
+type ResearchNode = Node<{ object: ResearchObject; edit: (id: string) => void; mode: ToolMode; endpoint: boolean; challenged?:boolean }, "research">;
 function ResearchNodeView({ data, selected }: NodeProps<ResearchNode>) {
   const Icon = TYPE_ICONS[data.object.type];
-  return <div className={`research-node ${selected ? "node-selected" : ""} ${data.endpoint ? "node-endpoint" : ""}`}>
-    <Handle type="target" position={Position.Left} isConnectable={data.mode === "select"} aria-label="Incoming connection" />
+  return <div className={`research-node ${selected ? "node-selected" : ""} ${data.endpoint ? "node-endpoint" : ""} ${data.object.metadata?.origin === "ai_accelerate" ? "node-novel" : ""} ${data.object.metadata?.provisional ? "node-provisional" : ""}`}>
+    <Handle type="target" position={Position.Left} isConnectable={data.mode === "select" && !data.object.metadata?.provisional} aria-label="Incoming connection" />
     <div className="node-type"><Icon size={14} /><span>{data.object.type}</span><button className="icon-button nodrag" disabled={data.mode !== "select"} aria-label={`Edit ${data.object.title || "Untitled"}`} onClick={event => { event.stopPropagation(); data.edit(data.object.id); }}><Pencil size={14} /></button></div>
-    <h3>{data.object.title || "Untitled"}</h3>{data.object.body && <p>{data.object.body}</p>}
-    <Handle type="source" position={Position.Right} isConnectable={data.mode === "select"} aria-label="Outgoing connection" />
+    <h3>{data.object.type === "Question" ? "? " : ""}{data.object.title || "Untitled"}</h3>{data.challenged && <small>△ Challenging evidence / claim</small>}{!!data.object.metadata?.researcher_corrected && <small>Researcher corrected</small>}{!!data.object.metadata?.interpretation_uncertainty && <small>{String(data.object.metadata.interpretation_uncertainty)} interpretation</small>}{!!data.object.metadata?.experiment_state && <small>{String(data.object.metadata.experiment_state)}</small>}{data.object.type==="Experiment" && data.object.provenanceType==="experiment_runner" && !!data.object.metadata?.run_id && <small>Completed · simulation</small>}{!!data.object.metadata?.conceptual_experiment && <small>Conceptual · execution unavailable</small>}{data.object.body && <p>{data.object.body}</p>}
+    <Handle type="source" position={Position.Right} isConnectable={data.mode === "select" && !data.object.metadata?.provisional} aria-label="Outgoing connection" />
   </div>;
 }
 const nodeTypes = { research: ResearchNodeView };
 
-function ObjectDialog({ object, close }: { object: ResearchObject; close: () => void }) {
+function ObjectDialog({ object, project, close }: { object: ResearchObject; project: Project; close: () => void }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const {sync}=useWorkspace();
+  const finish=()=>{void sync().then(close).catch(()=>{});};
   useEffect(() => { ref.current?.showModal(); }, []);
-  return <dialog ref={ref} className="object-dialog" aria-label="Edit research entry" onCancel={close} onClick={event => { if (event.target === event.currentTarget) close(); }}>
-    <div className="object-dialog-header"><span>Shared with your Notebook</span><button className="icon-button" aria-label="Close entry editor" onClick={close}><X size={18} /></button></div>
-    <ResearchEntry object={object} onDelete={close} autoFocus />
-    <button className="text-button" onClick={close}>Done</button>
+  return <dialog ref={ref} className="object-dialog" aria-label="Edit research entry" onCancel={event=>{event.preventDefault();finish();}} onClick={event => { if (event.target === event.currentTarget) finish(); }}>
+    <div className="object-dialog-header"><span>Shared with your Notebook</span><button className="icon-button" aria-label="Close entry editor" onClick={finish}><X size={18} /></button></div>
+    <p>Revision {object.currentRevision ?? 1} · {object.provenanceType ?? "human"} · {String(object.metadata?.origin ?? "research record")}</p>
+    {typeof object.metadata?.run_id==="string" && ["Experiment","Evidence"].includes(object.type) && <RecordedExperiment projectId={project.id} runId={object.metadata.run_id} />}
+    {Array.isArray(object.metadata?.source_passages) && <details open><summary>Original source passages</summary>{(object.metadata.source_passages as {object_id:string;revision:number;excerpt:string}[]).map((source,i)=><blockquote key={i}><p>{source.excerpt}</p><a href={`/projects/${object.projectId}/notebook#research-${source.object_id}`}>Source · revision {source.revision}</a></blockquote>)}</details>}
+    {object.metadata?.journal_entry ? <JournalEntry object={object} project={project} /> : object.metadata?.origin === "model_interpretation" ? <GraphCorrectionEditor object={object} done={close} /> : <ResearchEntry object={object} onDelete={close} autoFocus />}
+    <button className="text-button" onClick={finish}>Done</button>
   </dialog>;
 }
 
 export function ResearchCanvas({ project }: { project: Project }) {
-  return <ReactFlowProvider><CanvasSurface project={project} /></ReactFlowProvider>;
+  return <ReactFlowProvider key={project.id}><CanvasSurface project={project} /></ReactFlowProvider>;
 }
 
 function CanvasSurface({ project }: { project: Project }) {
   const { mutate, flush } = useWorkspace();
+  const [overlay, setOverlay] = useState<GraphOverlay>({nodes:[],edges:[]});
+  const [inspection,setInspection]=useState<string|null>(null);
+  const overlayChanged=useCallback((value:GraphOverlay)=>setOverlay(value),[]);
+  const closeInspection=useCallback(()=>setInspection(null),[]);
   const flow = useReactFlow<ResearchNode>();
   const surface = useRef<HTMLDivElement>(null);
   const lastToolClick = useRef(0);
@@ -61,32 +74,42 @@ function CanvasSurface({ project }: { project: Project }) {
   const editing = project.objects.find(o => o.id === editingId);
   const placedIds = useMemo(() => new Set(project.placements.map(p => p.objectId)), [project.placements]);
   const unplaced = project.objects.filter(o => !placedIds.has(o.id));
-  const nodes: ResearchNode[] = useMemo(() => project.placements.flatMap(placement => {
+  const placedNodes: ResearchNode[] = useMemo(() => project.placements.flatMap(placement => {
     const object = project.objects.find(o => o.id === placement.objectId);
-    return object ? [{ id: object.id, type: "research" as const, position: placement.position, selected: selectedNodes.includes(object.id), data: { object, edit: setEditingId, mode, endpoint: endpoint === object.id }, ariaLabel: `${object.type}: ${object.title || "Untitled"}` }] : [];
-  }), [project.placements, project.objects, selectedNodes, mode, endpoint]);
-  const edges = useMemo(() => project.relationships.filter(r => placedIds.has(r.sourceId) && placedIds.has(r.targetId)).map(r => ({ id: r.id, source: r.sourceId, target: r.targetId, type: "smoothstep", selected: selectedEdge === r.id, markerEnd: { type: MarkerType.ArrowClosed, color: "#a2674b" }, style: { stroke: "#a2674b", strokeWidth: selectedEdge === r.id || (mode === "disconnect" && (r.sourceId === endpoint || r.targetId === endpoint)) ? 2.5 : 1.3 }, ariaLabel: `Connection from ${project.objects.find(o => o.id === r.sourceId)?.title || "Untitled"} to ${project.objects.find(o => o.id === r.targetId)?.title || "Untitled"}` })), [project.relationships, project.objects, placedIds, selectedEdge, mode, endpoint]);
+    return object ? [{ id: object.id, type: "research" as const, position: placement.position, selected: selectedNodes.includes(object.id), data: { object, edit: setEditingId, mode, endpoint: endpoint === object.id, challenged: project.relationships.some(r=>r.type==="challenges" && (r.sourceId===object.id || r.targetId===object.id)) }, ariaLabel: `${object.type}: ${object.title || "Untitled"}` }] : [];
+  }), [project.placements, project.objects, project.relationships, selectedNodes, mode, endpoint]);
+  const nodes: ResearchNode[] = useMemo(()=>{
+    const known=new Set(placedNodes.map(n=>n.id)); const x=Math.max(-340,...placedNodes.map(n=>n.position.x))+340;
+    return [...placedNodes,...overlay.nodes.filter(o=>!known.has(o.id)).map((object,i)=>({id:object.id,type:"research" as const,position:{x:x+(i%3)*340,y:Math.floor(i/3)*230},draggable:false,selectable:true,data:{object,edit:setInspection,mode,endpoint:false},ariaLabel:`Provisional ${object.type}: ${object.title}`}))];
+  },[placedNodes,overlay,mode]);
+  const edges = useMemo(() => project.relationships.filter(r => placedIds.has(r.sourceId) && placedIds.has(r.targetId)).map(r => ({ id: r.id, source: r.sourceId, target: r.targetId, type: "smoothstep", label: r.type?.replaceAll("_", " "), selected: selectedEdge === r.id, markerEnd: { type: MarkerType.ArrowClosed, color: "#a2674b" }, style: { stroke: r.details?.origin === "ai_accelerate" || r.details?.model_provenance ? "#59735c" : "#a2674b", strokeWidth: selectedEdge === r.id || (mode === "disconnect" && (r.sourceId === endpoint || r.targetId === endpoint)) ? 2.5 : 1.3 }, ariaLabel: `Connection from ${project.objects.find(o => o.id === r.sourceId)?.title || "Untitled"} to ${project.objects.find(o => o.id === r.targetId)?.title || "Untitled"}` })), [project.relationships, project.objects, placedIds, selectedEdge, mode, endpoint]);
 
   const onNodesChange: OnNodesChange<ResearchNode> = useCallback(changes => {
     for (const change of changes) {
-      if (mode === "select" && change.type === "position" && change.position) mutate({ kind: "place", projectId: project.id, placement: { objectId: change.id, position: change.position } });
+      if (mode === "select" && change.type === "position" && change.position && placedIds.has(change.id)) mutate({ kind: "place", projectId: project.id, placement: { objectId: change.id, position: change.position } });
       if (change.type === "select") setSelectedNodes(ids => change.selected ? [...new Set([...ids, change.id])] : ids.filter(id => id !== change.id));
     }
-  }, [mutate, project.id, mode]);
+  }, [mutate, project.id, mode, placedIds]);
   function centerPosition() {
     const rect = surface.current?.getBoundingClientRect();
     return rect ? flow.screenToFlowPosition({ x: rect.left + rect.width / 2 - 130, y: rect.top + rect.height / 2 - 60 }) : { x: 80, y: 80 };
   }
   function connect(connection: Pick<Connection, "source" | "target">) {
-    if (!connection.source || !connection.target || connection.source === connection.target) return false;
-    if (project.relationships.some(r => r.sourceId === connection.source && r.targetId === connection.target && !r.type)) { setFeedback("That directed connection already exists."); return false; }
-    return mutate({ kind: "connect", projectId: project.id, relationship: { id: crypto.randomUUID(), projectId: project.id, sourceId: connection.source, targetId: connection.target } });
+    if (!connection.source || !connection.target || connection.source === connection.target || !placedIds.has(connection.source) || !placedIds.has(connection.target)) return false;
+    if (project.relationships.some(r => r.sourceId === connection.source && r.targetId === connection.target && (!r.type || r.type === "related_to"))) {setFeedback("That directed connection already exists.");return false;}
+    const rationale=window.prompt("Optional: why are these research objects related? This is your interpretation, not verified evidence.","");
+    if(rationale===null)return false;
+    return mutate({kind:"connect",projectId:project.id,relationship:{id:crypto.randomUUID(),projectId:project.id,sourceId:connection.source,targetId:connection.target,type:"related_to",details:{origin:"researcher_correction",rationale:rationale??""}}});
   }
-  function disconnect(id: string) {
-    if (project.relationships.some(r => r.id === id) && mutate({ kind: "disconnect", projectId: project.id, relationshipId: id })) changeMode("select");
+  function disconnect(id:string){
+    if(!project.relationships.some(r=>r.id===id))return;
+    const rationale=window.prompt("Optional: why should this relationship be removed? This decision will guide future graph generation.","");
+    if(rationale===null)return;
+    mutate({kind:"disconnect",projectId:project.id,relationshipId:id,rationale:rationale??"",correctionId:crypto.randomUUID()});changeMode("select");
   }
   function chooseNode(id: string) {
-    if (mode === "select") {window.dispatchEvent(new CustomEvent('vectorheart-object-focus',{detail:{projectId:project.id,objectId:id}}));return;}
+    if (mode === "select") {if(!project.objects.some(o=>o.id===id)){setInspection(id);return;} setEditingId(id);window.dispatchEvent(new CustomEvent('vectorheart-object-focus',{detail:{projectId:project.id,objectId:id}}));return;}
+    if(!placedIds.has(id))return;
     lastToolClick.current = Date.now();
     setCandidates([]); setFeedback("");
     if (!endpoint || !placedIds.has(endpoint)) { setEndpoint(id); return; }
@@ -106,31 +129,33 @@ function CanvasSurface({ project }: { project: Project }) {
   }
 
   return <main className="canvas-workspace" aria-label="Research Canvas">
+    <GraphIntelligence project={project} onOverlay={overlayChanged} inspection={inspection} closeInspection={closeInspection} />
     <div className="canvas-toolbar"><div className="canvas-create"><select aria-label="New node type" value={newType} onChange={e => setNewType(e.target.value as ObjectType)}>{OBJECT_TYPES.filter(t => !["Experiment", "Evidence"].includes(t)).map(type => <option key={type}>{type}</option>)}</select><button className="text-button" onClick={() => { const object = newObject(project.id, newType); mutate({ kind: "add-object", projectId: project.id, object, position: centerPosition() }); changeMode("select"); setEditingId(object.id); }}><Plus size={16} /> New entry</button></div>
       <div className="canvas-place"><select aria-label="Existing entry to place" value={existingId} onChange={e => setExistingId(e.target.value)}><option value="">Place an existing entry…</option>{unplaced.map(o => <option value={o.id} key={o.id}>{o.type}: {o.title || "Untitled"}</option>)}</select><button className="text-button" disabled={!unplaced.some(o => o.id === existingId)} onClick={() => { mutate({ kind: "place", projectId: project.id, placement: { objectId: existingId, position: centerPosition() } }); setExistingId(""); }}>Place</button></div>
       <div className="canvas-tools" role="group" aria-label="Canvas tools">{([["select", "Select", MousePointer2], ["connect", "Connect", Plus], ["disconnect", "Disconnect", Minus]] as const).map(([tool, label, Icon]) => <button key={tool} className="icon-button" aria-label={label} title={label} aria-pressed={mode === tool} onClick={() => changeMode(tool)}><Icon size={17} /></button>)}</div>
     </div>
     {candidates.length > 0 && <div className="relationship-picker" role="group" aria-label="Choose connection to remove"><span>Choose a connection to remove:</span>{project.relationships.filter(r => candidates.includes(r.id)).map(r => <button className="text-button" key={r.id} onClick={() => disconnect(r.id)}>{project.objects.find(o => o.id === r.sourceId)?.title || "Untitled"} &rarr; {project.objects.find(o => o.id === r.targetId)?.title || "Untitled"} &middot; {r.type || "Untyped"}</button>)}</div>}
     <div className={`canvas-surface canvas-mode-${mode}`} ref={surface}>
-      <ReactFlow<ResearchNode> nodes={nodes} edges={edges} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onConnect={connect}
+      <ReactFlow<ResearchNode> nodes={nodes} edges={[...edges,...overlay.edges.filter(e=>!edges.some(existing=>existing.source===e.sourceId&&existing.target===e.targetId&&existing.label===e.type.replaceAll("_"," "))).map(e=>({id:e.id,source:e.sourceId,target:e.targetId,label:e.type.replaceAll("_"," "),type:"smoothstep",style:{stroke:e.novel?"#59735c":"#a2674b",strokeDasharray:"5 4"},markerEnd:{type:MarkerType.ArrowClosed,color:e.novel?"#59735c":"#a2674b"}}))]} nodeTypes={nodeTypes} onNodesChange={onNodesChange} onConnect={connect}
         onNodeClick={(_, node) => chooseNode(node.id)}
         onNodeDoubleClick={(_, node) => { if (mode === "select" && Date.now() - lastToolClick.current > 400) setEditingId(node.id); }}
         nodesDraggable={mode === "select"} nodesConnectable={mode === "select"}
         onKeyDown={event => { if (mode !== "select" && (event.key === "Enter" || event.key === " ")) { const node = (event.target as HTMLElement).closest(".react-flow__node"); const id = node?.getAttribute("data-id"); if (id) { event.preventDefault(); chooseNode(id); } } }}
-        onEdgeClick={(_, edge) => { if (mode === "select") setSelectedEdge(edge.id); }} onPaneClick={() => { setSelectedEdge(null); setEndpoint(null); setCandidates([]); setFeedback(""); }}
+        onEdgeClick={(_, edge) => { if (mode === "select") { if(overlay.edges.some(e=>e.id===edge.id)){setInspection(edge.id);return;} setSelectedEdge(edge.id); } }} onPaneClick={() => { setSelectedEdge(null); setEndpoint(null); setCandidates([]); setFeedback(""); }}
         onEdgesChange={changes => { for (const change of changes) if (change.type === "select") setSelectedEdge(id => change.selected ? change.id : id === change.id ? null : id); }}
         onBeforeDelete={async ({ nodes: deleting }) => !deleting.length || window.confirm("Remove selected entries and their visible connections from the Canvas? Their content stays in the Notebook.")}
         onNodesDelete={deleted => removePlacements(deleted.map(node => node.id))}
-        onEdgesDelete={deleted => { for (const edge of deleted) mutate({ kind: "disconnect", projectId: project.id, relationshipId: edge.id }); }}
-        isValidConnection={connection => connection.source !== connection.target && !project.relationships.some(r => r.sourceId === connection.source && r.targetId === connection.target && !r.type)}
+        onEdgesDelete={deleted => { for (const edge of deleted) disconnect(edge.id); }}
+        isValidConnection={connection => connection.source !== connection.target && !project.relationships.some(r => r.sourceId === connection.source && r.targetId === connection.target && (!r.type || r.type === "related_to"))}
         fitView minZoom={0.15} maxZoom={2.5} deleteKeyCode={mode === "select" ? ["Backspace", "Delete"] : null} defaultEdgeOptions={{ interactionWidth: 24 }}>
         <Background variant={BackgroundVariant.Dots} gap={28} size={0.7} color="#d8cfc2" />
         <Controls showInteractive={false} position="bottom-right" />
       </ReactFlow>
       {!nodes.length && <div className="canvas-empty">Place a notebook entry or start a new thought.</div>}
-      {mode === "select" && (selectedNodes.length > 0 || selectedEdge) && <div className="canvas-selection">{selectedNodes.length > 0 && <button className="text-button" onClick={() => { if (window.confirm("Remove selected entries from the Canvas? They will remain in the Notebook.")) removePlacements(selectedNodes); }}>Remove from canvas</button>}{selectedEdge && <button className="text-button" onClick={() => { mutate({ kind: "disconnect", projectId: project.id, relationshipId: selectedEdge }); setSelectedEdge(null); }}>Delete connection</button>}</div>}
+      {mode === "select" && (selectedNodes.length > 0 || selectedEdge) && <div className="canvas-selection">{selectedNodes.length > 0 && <button className="text-button" onClick={() => { if (window.confirm("Remove selected entries from the Canvas? They will remain in the Notebook.")) removePlacements(selectedNodes); }}>Remove from canvas</button>}{selectedEdge && <button className="text-button" onClick={() => { disconnect(selectedEdge); setSelectedEdge(null); }}>Delete connection</button>}</div>}
     </div>
+    {selectedEdge && <div className="graph-edge-inspection"><h3>{project.relationships.find(r=>r.id===selectedEdge)?.type?.replaceAll("_"," ")}</h3><p>{String(project.relationships.find(r=>r.id===selectedEdge)?.details?.rationale ?? "Researcher-created connection; no scientific rationale recorded.")}</p><details><summary>Relationship provenance</summary><pre>{JSON.stringify(project.relationships.find(r=>r.id===selectedEdge)?.details,null,2)}</pre></details></div>}
     <p className="canvas-help" role="status">{feedback || (mode === "select" ? "Drag to arrange · Connect the small handles · Double-click an entry to write" : mode === "connect" ? endpoint ? "Choose the target entry. Escape to cancel." : "Choose the source entry. Escape to cancel." : endpoint ? "Choose the other endpoint. Escape to cancel." : "Choose an endpoint to disconnect. Escape to cancel.")}</p>
-    {editing && <ObjectDialog object={editing} close={() => setEditingId(null)} />}
+    {editing && <ObjectDialog project={project} object={editing} close={() => setEditingId(null)} />}
   </main>;
 }
