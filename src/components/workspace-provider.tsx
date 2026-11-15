@@ -1,105 +1,50 @@
-"use client";
-
+﻿"use client";
 import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
 import { applyMutation, localProjectRepository, LEGACY_PROJECTS_KEY, PROJECTS_KEY, newProject, type Mutation, type Project, type ProjectPatch } from "@/lib/projects";
-
-type Workspace = {
-  projects: Project[]; ready: boolean; error: string; pending: boolean;
-  create: (title: string, description: string) => string | null;
-  update: (id: string, patch: ProjectPatch) => boolean;
-  remove: (id: string) => boolean;
-  mutate: (mutation: Mutation, immediate?: boolean) => boolean;
-  flush: () => boolean;
-};
+import { kernel, kernelRepository } from "@/lib/kernel-repository";
+type Workspace = { projects: Project[]; ready: boolean; error: string; pending: boolean; create: (title: string, description: string) => string | null; update: (id: string, patch: ProjectPatch) => boolean; remove: (id: string) => boolean; mutate: (mutation: Mutation, immediate?: boolean) => boolean; flush: () => boolean; sync: () => Promise<void> };
 const Context = createContext<Workspace | null>(null);
-
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const current = useRef<Project[]>([]);
-  const queue = useRef<Mutation[]>([]);
-  const blocked = useRef(true);
-  const [ready, setReady] = useState(false);
-  const [error, setError] = useState("");
-  const [pending, setPending] = useState(false);
-
-  const flush = useCallback(() => {
-    if (!queue.current.length) return true;
+  const [projects,setProjects]=useState<Project[]>([]), [ready,setReady]=useState(false), [error,setError]=useState(""), [pending,setPending]=useState(false), [migration,setMigration]=useState(false);
+  const current=useRef<Project[]>([]), queue=useRef<Mutation[]>([]), saving=useRef<Promise<void>|null>(null), active=useRef(false);
+  const sync=useCallback(async () => {
+    if (saving.current) return saving.current;
+    saving.current=(async()=>{
+      while(queue.current.length) { await kernelRepository.apply(queue.current[0]); queue.current.shift(); }
+      const loaded=await kernelRepository.load();
+      current.current=queue.current.reduce((state,m)=>applyMutation(state,m),loaded);
+      setProjects(current.current);setPending(queue.current.length>0);setError("");
+    })();
+    try { await saving.current; } finally {saving.current=null;}
+  },[]);
+  const flush=useCallback(()=>{ if(!queue.current.length)return true; void sync().catch(e=>setError(String(e)));return false; },[sync]);
+  const load=useCallback(async()=>{
     try {
-      // Rebase field-level changes onto the latest snapshot, including other tabs.
-      const latest = localProjectRepository.load();
-      const next = queue.current.reduce((state, mutation) => applyMutation(state, mutation), latest);
-      if (next !== latest) localProjectRepository.save(next);
-      queue.current = [];
-      current.current = next;
-      setProjects(next);
-      setPending(false);
-      setError("");
-      return true;
-    } catch {
-      setError("Changes are not saved. Browser storage may be full, unavailable, or contain unreadable data. Keep this page open and retry saving.");
-      return false;
-    }
-  }, []);
-
-  useEffect(() => {
-    function load() {
-      try {
-        current.current = queue.current.reduce((state, mutation) => applyMutation(state, mutation), localProjectRepository.load());
-        setProjects(current.current);
-        blocked.current = false;
-        if (!queue.current.length) setError("");
-      } catch {
-        blocked.current = true;
-        setError("Saved projects could not be read. Existing data has been preserved. Check browser storage permissions and reload to try again.");
-      }
-      setReady(true);
-    }
-    load();
-    // A fixed cadence, not a debounce: continued interaction never delays a save.
-    const interval = setInterval(flush, 10_000);
-    function sync(event: StorageEvent) { if ([PROJECTS_KEY, LEGACY_PROJECTS_KEY, null].includes(event.key)) load(); }
-    function hidden() { if (document.visibilityState === "hidden") flush(); }
-    function leaving(event: BeforeUnloadEvent) { if (!flush()) { event.preventDefault(); event.returnValue = ""; } }
-    window.addEventListener("storage", sync);
-    window.addEventListener("pagehide", flush);
-    window.addEventListener("beforeunload", leaving);
-    document.addEventListener("visibilitychange", hidden);
-    return () => {
-      window.removeEventListener("storage", sync); window.removeEventListener("pagehide", flush);
-      window.removeEventListener("beforeunload", leaving); document.removeEventListener("visibilitychange", hidden);
-      clearInterval(interval);
-      flush();
-    };
-  }, [flush]);
-
-  const mutate = useCallback((mutation: Mutation, immediate = false) => {
-    if (blocked.current) return false;
-    const next = applyMutation(current.current, mutation);
-    if (next === current.current) return true;
-    queue.current.push(mutation);
-    current.current = next;
-    setProjects(current.current);
-    setPending(true);
-    if (immediate) flush();
-    // Accepted in memory even if disk saving failed; retain the queued draft.
-    return true;
-  }, [flush]);
-
-  const create = useCallback((title: string, description: string) => {
-    if (!title.trim()) return null;
-    const project = newProject(title, description);
-    return mutate({ kind: "create", project }, true) ? project.id : null;
-  }, [mutate]);
-  const update = useCallback((id: string, patch: ProjectPatch) => mutate({ kind: "project", projectId: id, patch }), [mutate]);
-  const remove = useCallback((id: string) => mutate({ kind: "remove", projectId: id }, true), [mutate]);
-
-  return <Context.Provider value={{ projects, ready, error, pending, create, update, remove, mutate, flush }}>
-    {error && <div role="alert" className="storage-error">{error} {pending && <button className="text-button" onClick={flush}>Retry saving</button>}</div>}{children}
+      const stored=localStorage.getItem(PROJECTS_KEY) ?? localStorage.getItem(LEGACY_PROJECTS_KEY);
+      if(stored && !localStorage.getItem("vectorheart.kernel.imported.v1")) {setMigration(true);setReady(true);return;}
+      await sync();active.current=true;setReady(true);
+    } catch(e) {setError(String(e));setReady(true);}
+  },[sync]);
+  useEffect(()=>{
+    void Promise.resolve().then(load); const interval=setInterval(()=>{if(active.current)flush();},10000);
+    const hide=()=>{if(document.visibilityState==='hidden')flush();}; const leave=(e:BeforeUnloadEvent)=>{if(queue.current.length){flush();e.preventDefault();e.returnValue='';}};
+    window.addEventListener('pagehide',flush);window.addEventListener('beforeunload',leave);document.addEventListener('visibilitychange',hide);
+    return()=>{clearInterval(interval);flush();window.removeEventListener('pagehide',flush);window.removeEventListener('beforeunload',leave);document.removeEventListener('visibilitychange',hide);};
+  },[load,flush]);
+  const mutate=useCallback((m:Mutation,immediate=false)=>{
+    if(!active.current)return false; const next=applyMutation(current.current,m);if(next===current.current)return true;
+    // Coalesce writing and intermediate canvas positions before server revisions are accepted.
+    const previous=queue.current.at(-1);
+    if(previous && !saving.current && previous.kind===m.kind && 'projectId' in previous && 'projectId' in m && previous.projectId===m.projectId && (m.kind==='edit-object' && previous.kind==='edit-object' && m.objectId===previous.objectId)) queue.current[queue.current.length-1]={...m,patch:{...previous.patch,...m.patch}};
+    else if(previous?.kind==='place' && m.kind==='place' && !saving.current && previous.placement.objectId===m.placement.objectId)queue.current[queue.current.length-1]=m;
+    else queue.current.push(m);
+    current.current=next;setProjects(next);setPending(true);if(immediate)flush();return true;
+  },[flush]);
+  function backup(){const blob=new Blob([JSON.stringify({v1:localStorage.getItem(LEGACY_PROJECTS_KEY),v2:localStorage.getItem(PROJECTS_KEY)},null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='vectorheart-browser-backup.json';a.click();URL.revokeObjectURL(url);}
+  async function importData(){try {const raw=localStorage.getItem(PROJECTS_KEY);const parsed=raw?JSON.parse(raw):null;if(parsed&&parsed.version!==2)throw new Error('Unsupported browser schema; export the backup for recovery.');const projects=parsed?parsed.projects:localProjectRepository.load();const result=await kernel<{warnings:string[]}>("import","POST",{projects,original_backup:{v1:localStorage.getItem(LEGACY_PROJECTS_KEY),v2:raw}});await sync();localStorage.setItem('vectorheart.kernel.imported.v1','yes');setMigration(false);active.current=true;setError(result.warnings.join('; '));}catch(e){setError(String(e));}}
+  return <Context.Provider value={{projects,ready,error,pending,sync,flush,mutate,create:(title,description)=>{const p=newProject(title,description);return mutate({kind:'create',project:p},true)?p.id:null;},update:(id,patch)=>mutate({kind:'project',projectId:id,patch}),remove:id=>mutate({kind:'remove',projectId:id},true)}}>
+    {error&&<div className="storage-error" role="alert">{error} <button className="text-button" onClick={()=>void load()}>Retry connection</button><button className="text-button" onClick={()=>void sync().catch(e=>setError(String(e)))}>Retry saving</button></div>}
+    {migration?<main className="project-content"><h1>Bring your research into the kernel.</h1><p className="subtitle">Export a backup, then import your browser projects. Original records stay intact. Existing kernel projects are preserved.</p><button className="text-button" onClick={backup}>Export JSON backup</button><button className="primary-button" onClick={()=>void importData()}>Import and open workspace</button></main>:children}
   </Context.Provider>;
 }
-
-export function useWorkspace() {
-  const context = useContext(Context);
-  if (!context) throw new Error("Workspace provider is missing");
-  return context;
-}
+export function useWorkspace(){const value=useContext(Context);if(!value)throw new Error('Missing workspace provider');return value;}

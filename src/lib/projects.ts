@@ -1,16 +1,19 @@
-export const OBJECT_TYPES = ["Note", "Question", "Hypothesis", "Observation"] as const;
+export const OBJECT_TYPES = ["Note", "Question", "Hypothesis", "Observation", "Prediction", "Experiment", "Evidence", "Concept"] as const;
 export type ObjectType = typeof OBJECT_TYPES[number];
 export const OPERATIONS = ["General Reasoning", "Literature Analysis", "Hypothesis Construction", "Critical Review / Verification", "Experiment Coding", "Conceptual Synthesis"] as const;
 export type ResearchOperation = typeof OPERATIONS[number];
 export const PROVIDERS = ["Automatic", "OpenAI", "Anthropic", "Google Gemini", "Custom"] as const;
 export type ModelAssignment = { provider: typeof PROVIDERS[number]; modelId: string };
 export type ProjectSettings = {
+  archived?: boolean;
   modelAssignments: Record<ResearchOperation, ModelAssignment>;
   researchField: string;
   environment: "None" | "Python" | "External environment";
   computeBudget: { amount: number; unit: "USD" } | null;
 };
 export type ResearchObject = {
+  metadata?: Record<string, unknown>;
+  currentRevision?: number;
   id: string; projectId: string; type: ObjectType; title: string; body: string;
   createdAt: string; updatedAt: string;
 };

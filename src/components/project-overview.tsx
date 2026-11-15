@@ -2,21 +2,23 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowRight } from "lucide-react";
 import { OPERATIONS, PROVIDERS, formatDate, type ModelAssignment, type Project, type ProjectSettings } from "@/lib/projects";
 import { useWorkspace } from "./workspace-provider";
 
 export function ProjectOverview({ project }: { project: Project }) {
-  const { update, flush } = useWorkspace();
+  const { update, sync } = useWorkspace();
+  const router=useRouter();
   const [title, setTitle] = useState(project.title);
   const [description, setDescription] = useState(project.description);
   const [settings, setSettings] = useState(project.settings);
   const [dirty, setDirty] = useState(false);
   function changeSettings(patch: Partial<ProjectSettings>) { setSettings(s => ({ ...s, ...patch })); setDirty(true); }
-  function save() {
+  async function save() {
     if (!title.trim()) return false;
     const accepted = update(project.id, { title: title.trim(), description: description.trim(), settings });
-    if (accepted && flush()) { setDirty(false); return true; }
+    if (accepted) { try { await sync();setDirty(false); return true; } catch {return false;} }
     return false;
   }
   return <main className="project-content overview-content">
@@ -26,7 +28,7 @@ export function ProjectOverview({ project }: { project: Project }) {
         <label htmlFor="overview-title">Project title</label><input id="overview-title" required maxLength={120} value={title} onChange={e => { setTitle(e.target.value); setDirty(true); }} />
         <label htmlFor="overview-description">Description <span className="muted">(optional)</span></label><textarea id="overview-description" rows={3} maxLength={500} value={description} onChange={e => { setDescription(e.target.value); setDirty(true); }} />
       </section>
-      <section className="overview-section"><h3>Research intelligence</h3><p className="field-help">Choose a provider for each operation. Configuration only — no models are connected or called.</p>
+      <section className="overview-section"><h3>Research intelligence</h3><p className="field-help">Manual proposals are available. OpenAI, Anthropic, Gemini and Custom assignments are saved preferences; provider execution is not yet implemented. No model credentials are requested.</p>
         <div className="model-assignments">{OPERATIONS.map((operation, index) => {
           const assignment = settings.modelAssignments[operation];
           function changeAssignment(patch: Partial<ModelAssignment>) { changeSettings({ modelAssignments: { ...settings.modelAssignments, [operation]: { ...assignment, ...patch } } }); }
@@ -39,7 +41,7 @@ export function ProjectOverview({ project }: { project: Project }) {
         <label htmlFor="compute-budget">Compute budget <span className="muted">(optional, USD)</span></label><input id="compute-budget" type="number" min="0" step="0.01" value={settings.computeBudget?.amount ?? ""} onChange={e => changeSettings({ computeBudget: e.target.value === "" ? null : { amount: Number(e.target.value), unit: "USD" } })} placeholder="No budget set" /><p className="field-help">A planning preference only. No billing or scheduling.</p>
       </section>
       <div className="overview-actions"><button type="submit" className="primary-button" disabled={!dirty || !title.trim()}>Save changes</button><span className="muted text-xs" role="status">{dirty ? "Unsaved settings" : "Settings saved locally"}</span></div>
-      <Link className="enter-workspace" href={`/projects/${project.id}/notebook`} onClick={event => { if (dirty && !save()) event.preventDefault(); }}>Open Research Notebook <ArrowRight size={17} /></Link>
+      <Link className="enter-workspace" href={`/projects/${project.id}/notebook`} onClick={event => { if (dirty) {event.preventDefault();void save().then(ok=>{if(ok)router.push(`/projects/${project.id}/notebook`);});} }}>Open Research Notebook <ArrowRight size={17} /></Link>
     </form>
   </main>;
 }

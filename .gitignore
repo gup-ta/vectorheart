@@ -233,3 +233,6 @@ out/
 # Track the application persistence adapter (legacy ignore excludes lib directories).
 !src/lib/
 !src/lib/**
+
+.vectorheart/
+backend/.venv/

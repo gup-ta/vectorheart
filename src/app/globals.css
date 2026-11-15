@@ -1,4 +1,11 @@
 @import "tailwindcss";
+.scientific-actions { margin: 20px 0 35px; }
+.research-trail { margin: 22px 0; border-bottom: 1px solid #ded6cb; padding-bottom: 18px; font-size: 13px; line-height: 1.8; }
+.research-trail summary { cursor: pointer; color: #875439; }
+.research-trail pre { white-space: pre-wrap; overflow-wrap: anywhere; font: 12px/1.7 monospace; max-height: 420px; overflow: auto; padding: 15px 0; }
+.research-trail li { padding: 8px 0; }
+.revision-diff { margin: 20px 0; white-space: pre-wrap; }
+.revision-diff ins { display: block; text-decoration: none; border-left: 2px solid #a2674b; padding-left: 12px; }
 
 /* Project workspace: the same paper, ink, and quiet controls as the homepage. */
 select { font: inherit; color: inherit; max-width: 100%; }
