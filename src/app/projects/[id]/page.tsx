@@ -1,6 +1,6 @@
-import { ProjectNotebook } from "@/components/project-notebook";
+import { ProjectWorkspace } from "@/components/project-workspace";
 
 export default async function ProjectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  return <ProjectNotebook id={id} />;
+  return <ProjectWorkspace id={id} />;
 }

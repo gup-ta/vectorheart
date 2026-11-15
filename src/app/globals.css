@@ -1,5 +1,108 @@
 @import "tailwindcss";
 
+/* Project workspace: the same paper, ink, and quiet controls as the homepage. */
+select { font: inherit; color: inherit; max-width: 100%; }
+.project-shell { min-height: 100svh; padding: 0 56px 110px; }
+.project-header { max-width: 1100px; margin: auto; }
+.project-topline { min-height: 88px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.project-brand { display: flex; align-items: center; gap: 14px; }
+.project-identity { margin: 34px 0 32px; max-width: 850px; }
+.project-identity h1 { font: 400 clamp(28px, 3.3vw, 43px)/1.25 Georgia, serif; letter-spacing: -1px; overflow-wrap: anywhere; }
+.project-identity p { color: #81776b; font-size: 14px; line-height: 1.8; margin-top: 12px; overflow-wrap: anywhere; white-space: pre-wrap; }
+.project-navigation { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-bottom: 1px solid #ded6cb; }
+.project-navigation nav { display: flex; gap: 30px; }
+.project-navigation nav a { display: flex; align-items: center; gap: 9px; font-size: 13px; padding: 15px 0; border-bottom: 2px solid transparent; color: #796c5f; margin-bottom: -1px; }
+.project-navigation nav a.active-tab { color: #875439; border-bottom-color: #a2674b; }
+.project-settings-link.is-active { background: #eee6dc; color: #875439; }
+.save-state { font-size: 11px; color: #796c5f; }
+.project-content { max-width: 780px; margin: 54px auto 0; min-width: 0; }
+.section-intro { margin-bottom: 38px; }
+.section-intro h2 { font: 400 29px/1.4 Georgia, serif; margin: 14px 0 8px; }
+.section-intro > p:last-child:not(.eyebrow) { font-size: 13px; color: #81776b; line-height: 1.7; }
+.overview-section { padding: 30px 0 36px; border-bottom: 1px solid #ded6cb; }
+.overview-section:first-child { padding-top: 0; }
+.overview-section h3 { font: 400 23px Georgia, serif; }
+.overview-section label { display: block; font-size: 12px; margin: 23px 0 9px; }
+.overview-section input, .overview-section textarea, .overview-section select { display: block; width: 100%; min-width: 0; padding: 11px 12px; background: transparent; border: 1px solid #ded6cb; border-radius: 4px; font: 14px/1.6 Arial, sans-serif; }
+.overview-section textarea { resize: vertical; }
+.overview-section .field-help { color: #796c5f; }
+.model-assignments { margin-top: 25px; }
+.model-row { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; padding: 16px 0; border-bottom: 1px solid #e9e2d8; align-items: start; }
+.model-row:last-child { border-bottom: 0; padding-bottom: 0; }
+.model-row > label { margin: 12px 0; line-height: 1.5; }
+.model-fields { display: grid; gap: 8px; min-width: 0; }
+.model-fields input { font-size: 12px; }
+.overview-actions { display: flex; align-items: center; gap: 16px; margin-top: 28px; }
+.enter-workspace { display: inline-flex; align-items: center; gap: 12px; font-size: 14px; color: #875439; margin-top: 45px; padding: 12px 0; }
+.central-question > .field-label { font-size: 12px; color: #796c5f; }
+.central-question .question-input { margin-top: 16px; min-height: 105px; font-size: 23px; }
+.entries-heading { display: flex; align-items: center; justify-content: space-between; gap: 20px; margin-top: 48px; padding-bottom: 18px; border-bottom: 1px solid #ded6cb; }
+.entries-heading h3 { font: 22px Georgia, serif; }
+.entries-heading h3 span { font: 11px Arial, sans-serif; margin-left: 8px; color: #81776b; }
+.entry-add, .canvas-create, .canvas-place { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.entry-add select, .canvas-toolbar select, .canvas-connect select { border: 1px solid #ded6cb; border-radius: 4px; background: #faf8f4; padding: 8px; font-size: 12px; min-width: 0; }
+.notebook-empty { color: #81776b; font: italic 18px/1.8 Georgia, serif; margin: 35px 0; }
+.research-entry { padding: 28px 0; border-bottom: 1px solid #ded6cb; }
+.entry-topline { display: flex; justify-content: space-between; align-items: center; }
+.entry-type { display: flex; align-items: center; gap: 6px; color: #875439; }
+.entry-type select { background: transparent; border: 0; font-size: 11px; padding: 6px 2px; }
+.entry-title, .entry-body { display: block; width: 100%; min-width: 0; background: transparent; color: #302a24; border: 0; border-radius: 0; padding: 8px 0; }
+.entry-title { font: 25px/1.5 Georgia, serif; margin-top: 10px; }
+.entry-body { font: 18px/1.9 Georgia, serif; resize: vertical; min-height: 120px; overflow-y: hidden; }
+.entry-title::placeholder, .entry-body::placeholder { color: #978b7e; }
+html[data-notes-font="sans"] .entry-body { font-family: Arial, Helvetica, sans-serif; font-size: 16px; }
+.entry-date { color: #81776b; font-size: 10px; margin-top: 15px; line-height: 1.8; }
+.project-shell-canvas { padding-bottom: 30px; }
+.canvas-workspace { max-width: 1600px; margin: 0 auto; }
+.canvas-toolbar { display: flex; align-items: center; gap: 24px; flex-wrap: wrap; padding: 20px 0; }
+.canvas-place select { max-width: 260px; }
+.canvas-connect { display: flex; gap: 12px; flex-wrap: wrap; padding: 0 0 18px; }
+.canvas-connect select { max-width: 240px; }
+.canvas-surface { position: relative; height: max(480px, calc(100svh - 360px)); border: 1px solid #ded6cb; border-radius: 5px; overflow: hidden; }
+.canvas-surface .react-flow { --xy-background-color: #faf8f4; --xy-node-border: 1px solid #ded6cb; --xy-controls-button-background-color: #faf8f4; --xy-controls-button-color: #302a24; --xy-controls-button-border-color: #ded6cb; --xy-edge-stroke: #a2674b; --xy-node-boxshadow-selected: none; }
+.canvas-surface .react-flow__controls { box-shadow: none; border: 1px solid #ded6cb; }
+.canvas-surface .react-flow__attribution { background: #faf8f4; font-size: 9px; }
+.research-node { width: 260px; padding: 14px 18px 20px; border: 1px solid #cfc2b2; border-radius: 5px; background: #faf8f4; }
+.research-node.node-selected { border: 2px solid #a2674b; padding: 13px 17px 19px; }
+.node-type { display: flex; gap: 7px; align-items: center; color: #875439; font-size: 10px; }
+.node-type button { margin-left: auto; }
+.research-node h3 { font: 21px/1.4 Georgia, serif; margin-top: 6px; overflow-wrap: anywhere; }
+.research-node p { font: 12px/1.8 Arial, sans-serif; color: #796c5f; margin-top: 9px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; overflow-wrap: anywhere; white-space: pre-wrap; }
+.research-node .react-flow__handle { width: 10px; height: 10px; background: #a2674b; border: 2px solid #faf8f4; }
+.canvas-empty { position: absolute; top: 40%; left: 24px; right: 24px; text-align: center; pointer-events: none; color: #81776b; font: italic 18px/1.8 Georgia, serif; }
+.canvas-help { color: #796c5f; font-size: 10px; text-align: center; margin-top: 14px; }
+.canvas-loading { padding: 50px; text-align: center; color: #81776b; }
+.canvas-selection { position: absolute; top: 14px; left: 14px; max-width: calc(100% - 28px); display: flex; flex-wrap: wrap; gap: 18px; padding: 3px 14px; border: 1px solid #ded6cb; border-radius: 4px; background: #faf8f4; }
+.object-dialog { margin: auto; width: 680px; max-width: calc(100vw - 32px); max-height: 85svh; overflow-y: auto; border: 1px solid #ded6cb; border-radius: 6px; padding: 24px 30px; background: #faf8f4; color: #302a24; }
+.object-dialog::backdrop { background: #302a2440; }
+.object-dialog-header { display: flex; justify-content: space-between; align-items: center; font-size: 11px; color: #796c5f; }
+.object-dialog .research-entry { padding-top: 12px; }
+@media (max-width: 640px) {
+  .project-shell { padding: 0 20px 95px; }
+  .project-shell-canvas { padding: 0 12px 80px; }
+  .project-topline { min-height: 74px; }
+  .project-brand { gap: 6px; }
+  .project-brand .brand { gap: 6px; font-size: 9px; letter-spacing: 1.3px; }
+  .project-identity { margin: 24px 0; }
+  .project-identity p { font-size: 13px; }
+  .project-content { margin-top: 32px; }
+  .project-navigation nav { gap: 24px; }
+  .save-state { font-size: 9px; }
+  .section-intro h2 { font-size: 26px; }
+  .model-row { grid-template-columns: 1fr; gap: 8px; }
+  .model-row > label { margin: 0; }
+  .entries-heading { align-items: flex-start; flex-direction: column; gap: 15px; }
+  .entry-title { font-size: 23px; }
+  .entry-body { font-size: 17px; }
+  .canvas-toolbar { gap: 12px 20px; }
+  .canvas-place { width: 100%; }
+  .canvas-place select { flex: 1; max-width: none; }
+  .canvas-surface { height: 65svh; min-height: 430px; }
+  .canvas-connect select { max-width: 100%; width: 100%; }
+  .canvas-help { font-size: 9px; line-height: 1.6; }
+  .object-dialog { padding: 18px; }
+}
+
 @theme inline {
   --color-paper: #faf8f4;
   --color-ink: #302a24;

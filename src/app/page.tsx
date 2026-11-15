@@ -30,6 +30,6 @@ export default function Home() {
       </section>
       <footer className="workspace-footer"><span className="footer-mark">✳</span><p>Stay curious. Follow the question.</p><span>VECTORHEART / V0.1</span></footer>
     </main>
-    {editing && <ProjectDialog title={editing === "new" ? "A new beginning." : "A little refinement."} initialName={editing === "new" ? "" : editing.title} initialDescription={editing === "new" ? "" : editing.description} onClose={() => setEditing(null)} onSave={(title, description) => { if (editing === "new") { const id = create(title, description); if (id) router.push(`/projects/${id}`); return !!id; } return update(editing.id, { title, description }); }} />}
+    {editing && <ProjectDialog title={editing === "new" ? "A new beginning." : "A little refinement."} initialName={editing === "new" ? "" : editing.title} initialDescription={editing === "new" ? "" : editing.description} onClose={() => setEditing(null)} onSave={(title, description) => { if (editing === "new") { const id = create(title, description); if (id) router.push(`/projects/${id}/settings`); return !!id; } return update(editing.id, { title, description }); }} />}
   </div>;
 }

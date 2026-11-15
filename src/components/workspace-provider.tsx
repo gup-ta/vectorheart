@@ -1,70 +1,97 @@
 "use client";
 
-import { createContext, useContext, useEffect, useRef, useState } from "react";
-import { localProjectRepository, PROJECTS_KEY, type Project } from "@/lib/projects";
+import { createContext, useCallback, useContext, useEffect, useRef, useState } from "react";
+import { applyMutation, localProjectRepository, LEGACY_PROJECTS_KEY, PROJECTS_KEY, newProject, type Mutation, type Project, type ProjectPatch } from "@/lib/projects";
 
 type Workspace = {
-  projects: Project[];
-  ready: boolean;
-  error: string;
+  projects: Project[]; ready: boolean; error: string; pending: boolean;
   create: (title: string, description: string) => string | null;
-  update: (id: string, patch: Partial<Pick<Project, "title" | "description" | "question" | "notes">>) => boolean;
+  update: (id: string, patch: ProjectPatch) => boolean;
   remove: (id: string) => boolean;
+  mutate: (mutation: Mutation, immediate?: boolean) => boolean;
+  flush: () => boolean;
 };
 const Context = createContext<Workspace | null>(null);
 
 export function WorkspaceProvider({ children }: { children: React.ReactNode }) {
   const [projects, setProjects] = useState<Project[]>([]);
   const current = useRef<Project[]>([]);
+  const queue = useRef<Mutation[]>([]);
+  const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const blocked = useRef(true);
   const [ready, setReady] = useState(false);
   const [error, setError] = useState("");
-  const blocked = useRef(false);
+  const [pending, setPending] = useState(false);
+
+  const flush = useCallback(() => {
+    if (timer.current) clearTimeout(timer.current);
+    if (!queue.current.length) return true;
+    try {
+      // Rebase field-level changes onto the latest snapshot, including other tabs.
+      const next = queue.current.reduce((state, mutation) => applyMutation(state, mutation), localProjectRepository.load());
+      localProjectRepository.save(next);
+      queue.current = [];
+      current.current = next;
+      setProjects(next);
+      setPending(false);
+      setError("");
+      return true;
+    } catch {
+      setError("Changes are not saved. Browser storage may be full, unavailable, or contain unreadable data. Keep this page open and retry saving.");
+      return false;
+    }
+  }, []);
 
   useEffect(() => {
     function load() {
       try {
-        current.current = localProjectRepository.load();
+        current.current = queue.current.reduce((state, mutation) => applyMutation(state, mutation), localProjectRepository.load());
         setProjects(current.current);
         blocked.current = false;
-        setError("");
+        if (!queue.current.length) setError("");
       } catch {
         blocked.current = true;
-        setError("Your browser’s saved projects could not be read. Existing data has been preserved. Check browser storage permissions and reload to try again.");
+        setError("Saved projects could not be read. Existing data has been preserved. Check browser storage permissions and reload to try again.");
       }
       setReady(true);
     }
     load();
-    function sync(event: StorageEvent) { if (event.key === PROJECTS_KEY || event.key === null) load(); }
+    function sync(event: StorageEvent) { if ([PROJECTS_KEY, LEGACY_PROJECTS_KEY, null].includes(event.key)) load(); }
+    function hidden() { if (document.visibilityState === "hidden") flush(); }
+    function leaving(event: BeforeUnloadEvent) { if (!flush()) { event.preventDefault(); event.returnValue = ""; } }
     window.addEventListener("storage", sync);
-    return () => window.removeEventListener("storage", sync);
-  }, []);
+    window.addEventListener("pagehide", flush);
+    window.addEventListener("beforeunload", leaving);
+    document.addEventListener("visibilitychange", hidden);
+    return () => {
+      window.removeEventListener("storage", sync); window.removeEventListener("pagehide", flush);
+      window.removeEventListener("beforeunload", leaving); document.removeEventListener("visibilitychange", hidden);
+      if (timer.current) clearTimeout(timer.current);
+    };
+  }, [flush]);
 
-  function persist(next: Project[]) {
+  const mutate = useCallback((mutation: Mutation, immediate = false) => {
     if (blocked.current) return false;
-    try {
-      localProjectRepository.save(next);
-      current.current = next;
-      setProjects(next);
-      setError("");
-      return true;
-    } catch {
-      setError("Changes could not be saved. Your browser storage may be full or unavailable. Keep this page open and try again.");
-      return false;
-    }
-  }
+    queue.current.push(mutation);
+    current.current = applyMutation(current.current, mutation);
+    setProjects(current.current);
+    setPending(true);
+    if (timer.current) clearTimeout(timer.current);
+    if (immediate) flush(); else timer.current = setTimeout(flush, 600);
+    // Accepted in memory even if disk saving failed; retain the queued draft.
+    return true;
+  }, [flush]);
 
-  function create(title: string, description: string) {
-    const id = crypto.randomUUID();
-    const now = new Date().toISOString();
-    return persist([{ id, title: title.trim(), description: description.trim(), question: "", notes: "", createdAt: now, updatedAt: now }, ...current.current]) ? id : null;
-  }
-  function update(id: string, patch: Partial<Pick<Project, "title" | "description" | "question" | "notes">>) {
-    return persist(current.current.map(p => p.id === id ? { ...p, ...patch, updatedAt: new Date().toISOString() } : p));
-  }
-  function remove(id: string) { return persist(current.current.filter(p => p.id !== id)); }
+  const create = useCallback((title: string, description: string) => {
+    if (!title.trim()) return null;
+    const project = newProject(title, description);
+    return mutate({ kind: "create", project }, true) ? project.id : null;
+  }, [mutate]);
+  const update = useCallback((id: string, patch: ProjectPatch) => mutate({ kind: "project", projectId: id, patch }), [mutate]);
+  const remove = useCallback((id: string) => mutate({ kind: "remove", projectId: id }, true), [mutate]);
 
-  return <Context.Provider value={{ projects, ready, error, create, update, remove }}>
-    {error && <div role="alert" className="storage-error">{error}</div>}{children}
+  return <Context.Provider value={{ projects, ready, error, pending, create, update, remove, mutate, flush }}>
+    {error && <div role="alert" className="storage-error">{error} {pending && <button className="text-button" onClick={flush}>Retry saving</button>}</div>}{children}
   </Context.Provider>;
 }
 
