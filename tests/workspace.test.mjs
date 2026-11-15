@@ -92,6 +92,22 @@ async function flush() { await act(async () => workspace.sync()); }
 
 async function settle(){await act(async()=>{await new Promise(r=>setTimeout(r,150));});}
 async function until(check){for(let i=0;i<60;i++){await settle();if(check())return;}assert.fail('Timed out waiting for kernel/UI');}
+test('Our vision opens and closes without leaving the workspace or changing research',async()=>{
+  await render('home',true);await until(()=>workspace?.ready);
+  const before=workspace.projects.length;
+  await click('Our vision');
+  const vision=document.querySelector('dialog[aria-labelledby="vision-title"]');
+  assert.equal(vision.open,true);
+  assert.match(vision.textContent,/The Research That Comes Next/);
+  assert.match(vision.textContent,/FUTURE POSSIBILITIES/);
+  assert.match(vision.textContent,/Acceptance never means scientific verification/);
+  assert.equal(vision.querySelectorAll('.vision-capabilities article').length,6);
+  await click('Close our vision');
+  assert.equal(document.querySelector('dialog[aria-labelledby="vision-title"]'),null);
+  assert.equal(workspace.projects.length,before);
+  await act(async()=>root.unmount());root=null;
+});
+
 test('real kernel-backed Notebook completes First Heartbeat and reloads scientific history',async()=>{
   await render('home',true);await until(()=>workspace?.ready);
   await click('New project');await fill(input('Project title'),'Scientific integration');await click('Create project');await flush();
@@ -162,6 +178,20 @@ test('Research Intelligence discusses selected objects, accepts and rejects prop
   await act(async()=>root.unmount());root=null;
 });
 
+test('contextual intelligence shortcuts prefill the selected hypothesis without submitting inference',async()=>{
+  await render('intelligence',true);await until(()=>workspace.projects.length>0);
+  const project=workspace.projects[0];const object=project.objects.find(o=>o.type==='Hypothesis');assert.ok(object);
+  const before=project.objects.length;
+  await act(async()=>window.dispatchEvent(new CustomEvent('vectorheart-discuss',{detail:{projectId:project.id,objectId:object.id,mode:'Design Experiment',prompt:'Suggest a discriminating experiment.'}})));
+  await until(()=>document.querySelector('.intelligence-dialog[open]'));
+  assert.equal(input('Research mode').value,'Design Experiment');
+  assert.equal(input('Discuss research object').value,object.id);
+  assert.equal(input('Research question').value,'Suggest a discriminating experiment.');
+  assert.equal(workspace.projects[0].objects.length,before);
+  await click('Close Research Intelligence');
+  await act(async()=>root.unmount());root=null;
+});
+
 test('journal autosaves revisions, generates a reviewable graph and accepts spatial Accelerate proposals',async()=>{
   await render('notebook',true);await until(()=>workspace.projects.length>0);
   await click('New journal entry');await until(()=>document.querySelector('[aria-label="Journal writing"]'));
@@ -174,7 +204,7 @@ test('journal autosaves revisions, generates a reviewable graph and accepts spat
   assert.equal(journal.metadata.journal_entry,true);assert.ok(journal.currentRevision>=2);
   await click('View saved revisions');await until(()=>document.body.textContent.includes('Revision 1'));
   await render('canvas');
-  await click('Generate Research Graph');await until(()=>document.body.textContent.includes('Accept graph interpretation'));
+  await click('Update Research Graph');await until(()=>document.body.textContent.includes('Accept graph interpretation'));
   assert.match(document.body.textContent,/review/);
   assert.ok(!workspace.projects[0].objects.some(o=>o.title==='A journal-grounded hypothesis'));
   await click('Accept graph interpretation');await until(()=>workspace.projects[0].objects.some(o=>o.title==='A journal-grounded hypothesis'));
@@ -208,5 +238,47 @@ test('Canvas correction mutations are immediate, buffered, auditable and content
   let corrections;await act(async()=>{corrections=await (await fetch(`/api/kernel/v1/projects/${pid}/graph/corrections`)).json();});
   assert.ok(corrections.some(c=>c.kind==='remove_relationship'&&c.rationale==='Only correlation was reported.'));
   assert.ok(workspace.projects[0].objects.some(o=>o.id===a.id)&&workspace.projects[0].objects.some(o=>o.id===b.id));
+  await act(async()=>root.unmount());root=null;
+});
+
+test('literature sources and grounded connections are inspectable, human-reviewed and shared across reload',async()=>{
+  await render('canvas',true);await until(()=>workspace.projects.length>0);
+  const hypothesis=workspace.projects[0].objects.find(o=>o.type==='Hypothesis');assert.ok(hypothesis);
+  await fill(input('Literature research focus'),hypothesis.id);
+  await click('Ground in Literature');await until(()=>document.body.textContent.includes('1 proposed interpretations'));
+  const paperButton=[...document.querySelectorAll('.literature-candidates button')][0];assert.ok(paperButton);
+  await act(async()=>paperButton.click());await until(()=>document.querySelector('[aria-label="Scholarly source inspection"]'));
+  assert.match(document.querySelector('.literature-inspector').textContent,/10.1371\/journal.pone.0181772/);
+  assert.match(document.querySelector('.literature-inspector').textContent,/qualifies/);
+  assert.ok(!workspace.projects[0].objects.some(o=>o.metadata?.origin==='literature_source'));
+  await click('Accept literature relationship');await until(()=>workspace.projects[0].objects.some(o=>o.metadata?.origin==='literature_source'));
+  const paper=workspace.projects[0].objects.find(o=>o.metadata?.origin==='literature_source');
+  const claim=workspace.projects[0].objects.find(o=>o.metadata?.literature_claim);
+  assert.ok(paper&&claim);assert.equal(claim.metadata.source_type,'literature');
+  assert.ok(workspace.projects[0].relationships.some(r=>r.sourceId===paper.id&&r.targetId===hypothesis.id&&r.details?.literature_classification==='qualifies'));
+  await click('Close literature inspection');
+  await render('notebook',true);await until(()=>workspace.projects[0]?.objects.some(o=>o.id===paper.id));
+  assert.ok(workspace.projects[0].objects.some(o=>o.id===claim.id));
+  await act(async()=>root.unmount());root=null;
+});
+
+test('hypothesis inspection exposes real intelligence shortcuts and prepares an approval-aware investigation',async()=>{
+  await render('canvas',true);await until(()=>workspace.projects.length>0);
+  const project=workspace.projects[0],hypothesis=project.objects.find(o=>o.type==='Hypothesis');assert.ok(hypothesis);
+  const before=project.objects.length;
+  await act(async()=>workspace.mutate({kind:'place',projectId:project.id,placement:{objectId:hypothesis.id,position:{x:0,y:0}}}));
+  await until(()=>[...document.querySelectorAll('button')].some(b=>b.getAttribute('aria-label')===`Edit ${hypothesis.title}`));
+  await click(`Edit ${hypothesis.title}`);
+  assert.ok(document.querySelector('dialog[aria-label="Edit research entry"][open]'));
+  let detail;const receive=event=>{detail=event.detail;};window.addEventListener('vectorheart-discuss',receive);
+  await click('Suggest experiment');await until(()=>detail);
+  window.removeEventListener('vectorheart-discuss',receive);
+  assert.equal(detail.objectId,hypothesis.id);assert.equal(detail.mode,'Design Experiment');
+  assert.match(detail.prompt,/conceptual design/);
+  await click(`Edit ${hypothesis.title}`);await click('Investigate with tools');
+  await until(()=>document.querySelector('.investigate-launch').open);
+  assert.match(input('Investigation objective').value,/Investigate this hypothesis/);
+  assert.ok(input('Investigation objective').value.includes(hypothesis.title));
+  assert.equal(workspace.projects[0].objects.length,before);
   await act(async()=>root.unmount());root=null;
 });

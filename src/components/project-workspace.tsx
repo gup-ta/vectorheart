@@ -6,6 +6,7 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, BookOpen, Network, Settings2 } from "lucide-react";
 import { Brand } from "./brand";
+import { AboutVectorHeart } from "./about-vectorheart";
 import { useWorkspace } from "./workspace-provider";
 import { ProjectNotebook } from "./project-notebook";
 import { ProjectOverview } from "./project-overview";
@@ -32,7 +33,8 @@ export function ProjectWorkspace({ id, view }: { id: string; view?: ProjectView 
   return <div className={`project-shell ${view === "canvas" ? "project-shell-canvas" : ""}`}>
     <header className="project-header">
       <div className="project-topline"><div className="project-brand"><Link href="/" onClick={event => navigate(event,"/")} className="icon-button" aria-label="Back to projects"><ArrowLeft size={18} /></Link><Brand /></div>
-        {project && <Link href={`/projects/${id}/settings`} onClick={event => navigate(event,`/projects/${id}/settings`)} className={`icon-button project-settings-link ${view === "settings" ? "is-active" : ""}`} aria-label="Project settings" aria-current={view === "settings" ? "page" : undefined}><Settings2 size={19} /></Link>}
+        <div className="project-header-actions">{project && <Link href={`/projects/${id}/settings`} onClick={event => navigate(event,`/projects/${id}/settings`)} className={`icon-button project-settings-link ${view === "settings" ? "is-active" : ""}`} aria-label="Project settings" aria-current={view === "settings" ? "page" : undefined}><Settings2 size={19} /></Link>}
+        <AboutVectorHeart /></div>
       </div>
       {project&&<ResearchIntelligence key={id} project={project}/>}
       {project && <><div className="project-identity"><h1>{project.title}</h1>{project.description && <p>{project.description}</p>}</div>

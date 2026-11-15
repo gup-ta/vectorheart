@@ -19,3 +19,9 @@ source-grounded graph previews, durable researcher corrections, spatial AI
 Accelerate proposals and bounded investigations that pause for human approval
 before running registered scientific tools. Apply migration `0003` and restart
 the existing Python service. The local startup commands remain the same.
+
+[Stage 4: Literature Intelligence](docs/STAGE4.md) connects verified OpenAlex,
+Europe PMC and Crossref records to the shared research graph, with abstract-grounded
+review, literature-aware Accelerate and bounded read-only investigation tools.
+Apply migration `0004` and restart Python. Scholarly discovery also works without
+a model; interpretations and scientific changes remain explicitly reviewable.

@@ -1,8 +1,9 @@
 # Living Research Graph and bounded investigation
 
 Stage 3 extends the existing scientific kernel. It does not add another scientific
-database, provider implementation, or arbitrary-code execution path. Literature
-retrieval is not implemented.
+database, provider implementation, or arbitrary-code execution path. The subsequent
+[Stage 4](STAGE4.md) now adds literature retrieval and read-only scholarly tools;
+this document describes the retained Stage 3 foundation.
 
 ## Start locally (Windows PowerShell)
 

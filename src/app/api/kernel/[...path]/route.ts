@@ -11,7 +11,7 @@ async function forward(request: NextRequest, { params }: { params: Promise<{ pat
     const body = ["GET", "HEAD"].includes(request.method) ? undefined : await request.text();
     if (body && body.length > 5_000_000) return NextResponse.json({ error: { message: "Request too large; split the import" } }, { status: 413 });
     if (body) JSON.parse(body);
-    const response = await fetch(url, { method: request.method, body, headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(path.includes("intelligence") ? 95_000 : 25_000), cache: "no-store" });
+    const response = await fetch(url, { method: request.method, body, headers: { "Content-Type": "application/json" }, signal: AbortSignal.timeout(path.includes("intelligence") || path.includes("literature") ? 95_000 : 25_000), cache: "no-store" });
     return NextResponse.json(await response.json(), { status: response.status });
   } catch { return NextResponse.json({ error: { message: "Kernel unavailable or request invalid. Start the local Python service and retry. Your browser backup is preserved." } }, { status: 503 }); }
 }

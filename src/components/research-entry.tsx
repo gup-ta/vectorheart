@@ -1,13 +1,13 @@
 "use client";
 
 import { useLayoutEffect, useRef, useState } from "react";
-import { Eye, FileText, HelpCircle, Lightbulb, Trash2 } from "lucide-react";
+import { BarChart3, Eye, FileText, FlaskConical, HelpCircle, Lightbulb, Shapes, Trash2, TrendingUp } from "lucide-react";
 import { OBJECT_TYPES, formatDate, type ResearchObject, type ObjectType } from "@/lib/projects";
 import { useWorkspace } from "./workspace-provider";
 import { kernel } from "@/lib/kernel-repository";
 import { GraphCorrectionEditor } from "./graph-correction-editor";
 
-export const TYPE_ICONS = { Note: FileText, Question: HelpCircle, Hypothesis: Lightbulb, Observation: Eye, Prediction: Lightbulb, Experiment: FileText, Evidence: Eye, Concept: HelpCircle };
+export const TYPE_ICONS = { Note: FileText, Question: HelpCircle, Hypothesis: Lightbulb, Observation: Eye, Prediction: TrendingUp, Experiment: FlaskConical, Evidence: BarChart3, Concept: Shapes };
 
 function ObjectRevisionHistory({ object }: { object: ResearchObject }) {
   const [history, setHistory] = useState<{ revision_id: string; revision_number: number; title_snapshot: string; body_snapshot: string; reason: string }[]>([]);
@@ -39,7 +39,7 @@ export function ResearchEntry({ object, autoFocus = false, onDelete }: { object:
   const { mutate } = useWorkspace();
   if(object.metadata?.origin === "model_interpretation") return <article id={`research-${object.id}`} className="research-entry" aria-label={`Interpretation: ${object.title}`}><p className="eyebrow">Source-grounded model interpretation</p><GraphCorrectionEditor key={object.id} object={object} done={()=>{}} /><ObjectRevisionHistory object={object} /></article>;
   const Icon = TYPE_ICONS[object.type];
-  const recorded=['Experiment','Evidence'].includes(object.type);
+  const recorded=['Experiment','Evidence'].includes(object.type) || !!object.metadata?.literature_source_id;
   const edit = (patch: Partial<Pick<ResearchObject, "title" | "body" | "type">>) => mutate({ kind: "edit-object", projectId: object.projectId, objectId: object.id, patch });
   return <article id={`research-${object.id}`} className="research-entry" aria-label={`${object.type}: ${object.title || "Untitled"}`}>
     <div className="entry-topline"><div className="entry-type"><Icon size={15} strokeWidth={1.5} /><select disabled={recorded} aria-label="Entry type" value={object.type} onChange={e => edit({ type: e.target.value as ObjectType })}>{OBJECT_TYPES.map(type => <option key={type}>{type}</option>)}</select></div>

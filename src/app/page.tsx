@@ -5,6 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { ArrowUpRight, ArrowRight, Search, Plus, Pencil, Trash2, Sprout } from "lucide-react";
 import { Brand } from "@/components/brand";
+import { AboutVectorHeart } from "@/components/about-vectorheart";
 import { ProjectDialog } from "@/components/project-dialog";
 import { useWorkspace } from "@/components/workspace-provider";
 import { formatDate, type Project } from "@/lib/projects";
@@ -16,7 +17,7 @@ export default function Home() {
   const [editing, setEditing] = useState<Project | "new" | null>(null);
   const filtered = projects.filter(p => `${p.title} ${p.description}`.toLowerCase().includes(search.toLowerCase())).sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
   return <div className="page-shell">
-    <header className="site-header"><Brand /><span className="header-note">A little room for big questions.</span></header>
+    <header className="site-header"><Brand /><div className="home-header-actions"><span className="header-note">A little room for big questions.</span><AboutVectorHeart /></div></header>
     <main className="home-main">
       <section className="welcome"><h1>Welcome to VectorHeart<span className="accent">.</span></h1></section>
       <section aria-label="Your projects" className="projects-section">
